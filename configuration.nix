@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running `nixos-help`).
 
-{ config, pkgs, callPackage, ... }:
+{ config, pkgs, callPackage, nix-vscode-extensions, ... }:
 
 {
   imports =
@@ -13,6 +13,8 @@
     ];
 
   nixpkgs.config.allowUnfree = true;
+
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -33,7 +35,7 @@
     enable = true;
     layout = "us";
     # xkbOptions = "eurosign:e,caps:escape";
- 
+
     desktopManager = {
       xterm.enable = false;
       xfce = {
@@ -65,6 +67,20 @@
       google-chrome
       firefox
       tree
+
+      (vscode-with-extensions.override {
+        vscodeExtensions = (with vscode-extensions; [
+          bbenoist.nix
+          ms-python.python
+          jnoortheen.nix-ide
+          github.vscode-pull-request-github
+          github.copilot
+          ms-vscode-remote.remote-ssh
+        ]) ++ (with nix-vscode-extensions.extensions.x86_64-linux.vscode-marketplace; [
+          # For packages not available in https://search.nixos.org/packages?type=packages&query=vscode-extensions
+        ]);
+      })
+
     ];
     openssh.authorizedKeys.keys = [
       (builtins.readFile ./ssh-keys/mingaleg-masterkey.pub)
@@ -107,7 +123,8 @@
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
-  system.copySystemConfiguration = true;
+  # DISABLED: does not work with Nix Flakes
+  # system.copySystemConfiguration = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

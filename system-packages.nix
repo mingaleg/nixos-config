@@ -5,6 +5,7 @@
     gh
     git
     htop
+    nixpkgs-fmt
     tmux
     vim
     wget
