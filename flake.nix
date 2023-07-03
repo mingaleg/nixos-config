@@ -13,7 +13,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
     nixosConfigurations = {
       # By default, NixOS will try to refer the nixosConfiguration with its hostname.
       # so the system named `minganix` will use this configuration.
@@ -28,6 +28,16 @@
         # <https://nixos.org/manual/nixpkgs/unstable/#module-system-introduction>
         modules = [
           ./configuration.nix
+
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+
+            home-manager.users.mingaleg = import ./home.nix;
+
+            home-manager.extraSpecialArgs = inputs;
+          }
         ];
       };
     };

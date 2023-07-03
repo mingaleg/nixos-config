@@ -65,22 +65,7 @@
     extraGroups = [ "wheel" "nixos" ];
     packages = with pkgs; [
       google-chrome
-      firefox
       tree
-
-      (vscode-with-extensions.override {
-        vscodeExtensions = (with vscode-extensions; [
-          bbenoist.nix
-          ms-python.python
-          jnoortheen.nix-ide
-          github.vscode-pull-request-github
-          github.copilot
-          ms-vscode-remote.remote-ssh
-        ]) ++ (with nix-vscode-extensions.extensions.x86_64-linux.vscode-marketplace; [
-          # For packages not available in https://search.nixos.org/packages?type=packages&query=vscode-extensions
-        ]);
-      })
-
     ];
     openssh.authorizedKeys.keys = [
       (builtins.readFile ./ssh-keys/mingaleg-masterkey.pub)
