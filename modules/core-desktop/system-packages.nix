@@ -8,13 +8,12 @@
     gh
     git
 
-    htop
-
     nixpkgs-fmt
 
+    htop
+    tldr
     tmux
     vim
-
     wget
   ];
 }
