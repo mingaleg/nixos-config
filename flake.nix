@@ -13,7 +13,18 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: 
+    let
+      home-manager-modules = [
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.mingaleg = import ./home.nix;
+          home-manager.extraSpecialArgs = inputs;
+        }
+      ];
+    in {
     nixosConfigurations = {
       # By default, NixOS will try to refer the nixosConfiguration with its hostname.
       # so the system named `minganix` will use this configuration.
@@ -22,23 +33,10 @@
       # Run `sudo nixos-rebuild switch --flake .#minganix` in the flake's directory to deploy this configuration on any NixOS system
       "minganix" = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
-
         specialArgs = inputs;
-
-        # <https://nixos.org/manual/nixpkgs/unstable/#module-system-introduction>
         modules = [
-          ./configuration.nix
-
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-
-            home-manager.users.mingaleg = import ./home.nix;
-
-            home-manager.extraSpecialArgs = inputs;
-          }
-        ];
+          ./hosts/minganix
+        ] ++ home-manager-modules;
       };
     };
   };
