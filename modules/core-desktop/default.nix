@@ -72,6 +72,9 @@
     openssh.authorizedKeys.keys = [
       (builtins.readFile ../../ssh-keys/mingaleg-masterkey.pub)
     ];
+
+    # Generated with `mkpasswd -m sha-512`
+    hashedPassword = "$6$MTF1jg6OQAMoJ4t9$hR1aan5eu/g0YDlp7CDVCXlnJmmau4nIExDPOaOACJFhpBPCvRNYMi.RwI5ktJgJZWlt6APujxccrYpqutXAq/";
   };
 
   users.groups.nixos = {
