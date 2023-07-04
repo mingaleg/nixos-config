@@ -4,6 +4,7 @@
   environment.systemPackages = with pkgs; [
     coreutils-full
     killall
+    lsof
 
     gh
     git
