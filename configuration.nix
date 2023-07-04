@@ -41,12 +41,14 @@
     mplus-outline-fonts.githubRelease
     dina-font
     proggyfonts
+
+    (nerdfonts.override { fonts = [ "DroidSansMono" ]; })
   ];
 
   services.xserver = {
     enable = true;
-    layout = "us";
-    # xkbOptions = "eurosign:e,caps:escape";
+    layout = "us,ru";
+    xkbOptions = "grp:caps_toggle";
 
     desktopManager = {
       xterm.enable = false;
