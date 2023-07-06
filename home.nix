@@ -70,6 +70,11 @@
     };
   };
 
+  home.sessionVariables = {
+    EDITOR = "vim";
+    TERMINAL = "alacritty";
+  };
+
   home.stateVersion = "23.05";
 
   programs.home-manager.enable = true;
