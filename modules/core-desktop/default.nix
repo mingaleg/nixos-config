@@ -66,6 +66,7 @@
     isNormalUser = true;
     extraGroups = [ "wheel" "nixos" ];
     packages = with pkgs; [
+      alacritty
       feh
       google-chrome
       vlc
