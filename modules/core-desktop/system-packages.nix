@@ -9,10 +9,13 @@
     gh
     git
 
+    python3
+
     nixpkgs-fmt
 
     htop
     tldr
+    tree
     tmux
     vim
     wget

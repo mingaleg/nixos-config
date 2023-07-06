@@ -66,8 +66,9 @@
     isNormalUser = true;
     extraGroups = [ "wheel" "nixos" ];
     packages = with pkgs; [
+      feh
       google-chrome
-      tree
+      vlc
     ];
     openssh.authorizedKeys.keys = [
       (builtins.readFile ../../ssh-keys/mingaleg-masterkey.pub)
