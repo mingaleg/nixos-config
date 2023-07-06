@@ -66,6 +66,7 @@
       "git.confirmSync" = false;
       "git.autofetch" = true;
       "editor.fontFamily" = "'Droid Sans Mono', 'monospace', monospace, 'Noto Color Emoji'";
+      "terminal.integrated.gpuAcceleration" = "off";
     };
   };
 
