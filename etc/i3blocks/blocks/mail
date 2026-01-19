@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Requires https://www.google.com/settings/security/lesssecureapps for gmail.
 

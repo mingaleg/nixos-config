@@ -13,8 +13,10 @@
   # basic configuration of git, please change to your own
   programs.git = {
     enable = true;
-    userName = "Oleg Mingalev";
-    userEmail = "oleg@mingalev.net";
+    settings = {
+      user.name = "Oleg Mingalev";
+      user.email = "oleg@mingalev.net";
+    };
   };
 
   # Packages that should be installed to the user profile.
@@ -46,33 +48,49 @@
   programs.vscode = {
     enable = true;
 
-    enableExtensionUpdateCheck = false;
-    enableUpdateCheck = false;
+    profiles.default = {
+      enableExtensionUpdateCheck = false;
+      enableUpdateCheck = false;
 
-    extensions = (with pkgs.vscode-extensions; [
-      bbenoist.nix
-      jnoortheen.nix-ide
+      extensions = (with pkgs.vscode-extensions; [
+        bbenoist.nix
+        jnoortheen.nix-ide
 
-      ms-python.python
+        ms-python.python
 
-      github.vscode-pull-request-github
-      ms-vscode-remote.remote-ssh
-    ]) ++ (with nix-vscode-extensions.extensions.x86_64-linux.vscode-marketplace; [
-      # For packages not available in https://search.nixos.org/packages?type=packages&query=vscode-extensions
-    ]);
+        github.vscode-pull-request-github
+        ms-vscode-remote.remote-ssh
+      ]) ++ (with nix-vscode-extensions.extensions.x86_64-linux.vscode-marketplace; [
+        # For packages not available in https://search.nixos.org/packages?type=packages&query=vscode-extensions
+      ]);
 
-    userSettings = {
-      "git.enableSmartCommit" = true;
-      "git.confirmSync" = false;
-      "git.autofetch" = true;
-      "editor.fontFamily" = "'Droid Sans Mono', 'monospace', monospace, 'Noto Color Emoji'";
-      "terminal.integrated.gpuAcceleration" = "off";
+      userSettings = {
+        "git.enableSmartCommit" = true;
+        "git.confirmSync" = false;
+        "git.autofetch" = true;
+        "editor.fontFamily" = "'Droid Sans Mono', 'monospace', monospace, 'Noto Color Emoji'";
+        "terminal.integrated.gpuAcceleration" = "off";
+      };
     };
   };
 
   home.sessionVariables = {
     EDITOR = "vim";
     TERMINAL = "alacritty";
+  };
+
+  # i3 and i3blocks configuration managed via Nix
+  home.file = {
+    ".config/i3/config".source = ./etc/i3/config;
+    ".config/i3blocks/config".source = ./etc/i3blocks/config;
+    ".config/i3blocks/blocks" = {
+      source = ./etc/i3blocks/blocks;
+      recursive = true;
+    };
+    ".config/i3blocks/lib" = {
+      source = ./etc/i3blocks/lib;
+      recursive = true;
+    };
   };
 
   home.stateVersion = "25.11";

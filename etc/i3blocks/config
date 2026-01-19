@@ -1,8 +1,7 @@
 # i3blocks config file
 #
 
-LIBRARY=/home/mingaleg/.config/i3blocks/
-command=${LIBRARY}blocks/$BLOCK_NAME
+command=~/.config/i3blocks/blocks/$BLOCK_NAME
 separator_block_width=15
 markup=none
 

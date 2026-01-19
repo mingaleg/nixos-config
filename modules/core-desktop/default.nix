@@ -24,8 +24,9 @@
 
   fonts.packages = with pkgs; [
     noto-fonts
-    noto-fonts-cjk
-    noto-fonts-emoji
+    noto-fonts-cjk-sans
+    noto-fonts-cjk-serif
+    noto-fonts-color-emoji
     liberation_ttf
     fira-code
     fira-code-symbols
@@ -33,8 +34,10 @@
     dina-font
     proggyfonts
 
-    (nerdfonts.override { fonts = [ "DroidSansMono" ]; })
+    (nerd-fonts.droid-sans-mono)
   ];
+
+  services.displayManager.defaultSession = "none+i3";
 
   services.xserver = {
     enable = true;
@@ -50,7 +53,6 @@
       };
     };
 
-    displayManager.defaultSession = "none+i3";
     windowManager.i3 = {
       enable = true;
       extraPackages = with pkgs; [

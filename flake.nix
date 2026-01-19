@@ -20,6 +20,7 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "backup";
           home-manager.users.mingaleg = import ./home.nix;
           home-manager.extraSpecialArgs = inputs;
         }

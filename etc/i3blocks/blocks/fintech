@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 CLARS_FILE=/run/user/1000/fintech-clars
 PENDING_FILE=/run/user/1000/fintech-pending

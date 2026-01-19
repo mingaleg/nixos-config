@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 clickseq () {
     local id=${1:-`basename "$0"`}

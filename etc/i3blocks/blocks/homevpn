@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 STATUS_FILE=/run/user/1000/homevpn-check
 IP_FILE=/run/user/1000/current-ip

@@ -17,8 +17,33 @@
 
   networking.hostName = "mingamini";
 
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  # Enable wifi support with iwd (provides iwctl)
+  networking.wireless.iwd.enable = true;
+
+  # Rotate display to the right at X server level
+  services.xserver.xrandrHeads = [
+    {
+      output = "DSI-1";
+      primary = true;
+      monitorConfig = ''
+        Option "Rotate" "right"
+      '';
+    }
+  ];
+
+  # Rotate touchscreen to match display rotation
+  services.xserver.displayManager.sessionCommands = ''
+    ${pkgs.xorg.xinput}/bin/xinput set-prop "GXTP7380:00 27C6:0113" "Coordinate Transformation Matrix" 0 1 0 -1 0 1 0 0 1
+  '';
+
+  # Enable sound with pipewire.
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
 
   networking.firewall.enable = false;
 

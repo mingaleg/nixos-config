@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 KBD_BRIGHTNESS=/sys/class/leds/smc::kbd_backlight/brightness
 

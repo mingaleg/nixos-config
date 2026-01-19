@@ -19,5 +19,9 @@
     tmux
     vim
     wget
+
+    # i3blocks dependencies
+    acpi
+    perl
   ];
 }

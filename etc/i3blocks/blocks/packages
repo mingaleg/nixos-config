@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 URGENT_VALUE=10
 PACKAGE_COUNT=$(checkupdates | wc -l)
