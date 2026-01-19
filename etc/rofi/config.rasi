@@ -7,7 +7,7 @@
  **/
 
 
-@theme "/home/mingaleg/.config/rofi/launchers/type-1/style-4.rasi"
+@theme "~/.config/rofi/launchers/type-1/style-4.rasi"
 
 configuration {
 	/*---------- General setting ----------*/

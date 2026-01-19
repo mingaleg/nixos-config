@@ -20,7 +20,9 @@
   };
 
   # Packages that should be installed to the user profile.
-  home.packages = [ ];
+  home.packages = with pkgs; [
+    rofi
+  ];
 
   # starship - a customizable prompt for any shell
   programs.starship = {
@@ -79,7 +81,7 @@
     TERMINAL = "alacritty";
   };
 
-  # i3 and i3blocks configuration managed via Nix
+  # i3, i3blocks, and rofi configuration managed via Nix
   home.file = {
     ".config/i3/config".source = ./etc/i3/config;
     ".config/i3blocks/config".source = ./etc/i3blocks/config;
@@ -89,6 +91,10 @@
     };
     ".config/i3blocks/lib" = {
       source = ./etc/i3blocks/lib;
+      recursive = true;
+    };
+    ".config/rofi" = {
+      source = ./etc/rofi;
       recursive = true;
     };
   };
