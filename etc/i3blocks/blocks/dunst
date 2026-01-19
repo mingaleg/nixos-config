@@ -1,0 +1,20 @@
+#!/bin/bash
+
+echo "NTF"
+echo "NTF"
+echo ""
+
+if [[ "${BLOCK_BUTTON}" -eq 1 ]] ; then
+    dunst-pause-cmd resume > /dev/null 2> /dev/null &
+    exit 0
+fi
+if [[ "${BLOCK_BUTTON}" -eq 3 ]] ; then
+    dunst-pause-cmd pause > /dev/null 2> /dev/null &
+    exit 33
+fi
+
+
+
+if [[ `dunst-pause-cmd` == "paused" ]]; then
+    exit 33
+fi

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+KBD_BRIGHTNESS=/sys/class/leds/smc::kbd_backlight/brightness
+
+BRIGHTNESS=`cat $KBD_BRIGHTNESS`
+ON=255
+OFF=0
+
+echo KBD
+echo KDB
+
+if [ $BRIGHTNESS -eq $ON ]; then
+    SWITCH_STATE=$OFF
+else
+    SWITCH_STATE=$ON
+fi
+
+
+if [[ "${BLOCK_BUTTON}" -eq 1 ]]; then
+    echo $SWITCH_STATE > $KBD_BRIGHTNESS
+    if [[ $BRIGHTNESS -eq $ON ]]; then
+        BRIGHTNESS=$OFF
+    else
+        BRIGHTNESS=$ON
+    fi
+fi
+
+if [ $BRIGHTNESS -eq $ON ]; then
+    echo "#ffffff"
+else
+    echo "#444444"
+fi
+

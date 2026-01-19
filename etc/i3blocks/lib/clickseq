@@ -1,0 +1,28 @@
+#!/bin/bash
+
+clickseq () {
+    local id=${1:-`basename "$0"`}
+    local timeout=${2:-1000000000}
+    local dir=/tmp/clickseq
+    mkdir -p $dir
+    local file=$dir/$id
+    [ -f $file ] || touch $file
+    local prev_time=`head -n 1 $file`
+    local seq=`tail -n 1 $file`
+    local now=`date +%s%N`
+    local delta=`expr $now - ${prev_time:-0}`
+    local ret=""
+    if [ $delta -gt $timeout ] ; then
+        ret=$seq
+        seq=""
+    fi;
+    if [ -n ${BLOCK_BUTTON} ]; then
+        seq=$seq${BLOCK_BUTTON}
+        prev_time=$now
+    fi
+    echo -e "$prev_time\n$seq" > $file
+    echo $ret
+}
+
+SEQ=`clickseq $CLICKSEQ_ID $CLICKSEQ_TIMEOUT`
+

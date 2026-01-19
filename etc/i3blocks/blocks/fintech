@@ -1,0 +1,57 @@
+#!/bin/bash
+
+CLARS_FILE=/run/user/1000/fintech-clars
+PENDING_FILE=/run/user/1000/fintech-pending
+EXIT=0
+
+ADMIN_HREF="http://mingaleg-frisk/redirect.php?login=ejudge&password=9C2J6qZtjokilWewNEMH&SID=0000000000000000&_url=http://ejudge.mingaleg.ru/serve-control"
+SPREADSHEET_HREF="https://docs.google.com/spreadsheets/d/1cedr9vnDnvPjKTy6HZgt6xmMJXTZMmKhrZjwWhhxO1g/edit"
+
+OK=1
+
+if [ -f $CLARS_FILE ]; then
+    CLARS=`cat $CLARS_FILE`
+else
+    OK=0
+fi
+
+if [ -f $PENDING_FILE ]; then
+    PENDING=`cat $PENDING_FILE`
+else
+    OK=0
+fi
+
+if [ $OK -eq 0 ]; then
+    echo "FINTECH fail"
+    echo "FINTECH fail"
+    echo ""
+    EXIT=33
+else
+    echo "FINTECH $PENDING/$CLARS";
+    echo "FINTECH $PENDING/$CLARS";
+    if [ "$PENDING" = "0" ] && [ "$CLARS" = "0" ] ; then
+        echo "#00FF00";
+        EXIT=0
+    else
+        echo "#FF00FF";
+        EXIT=33
+    fi
+fi
+
+. $LIBRARY/lib/clickseq
+
+if [[ "$SEQ" = "1" ]]; then
+    xdg-open $ADMIN_HREF >/dev/null 2>/dev/null
+fi
+
+if [[ "$SEQ" = "11" ]]; then
+    xdg-open $SPREADSHEET_HREF >/dev/null 2>/dev/null
+fi
+
+if [[ "$SEQ" = "3" ]]; then
+    systemctl --user start fintech-clars.service
+    systemctl --user start fintech-pending.service
+fi
+
+
+exit $EXIT

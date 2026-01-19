@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Requires https://www.google.com/settings/security/lesssecureapps for gmail.
+
+CONFIG_FILE="${BLOCK_INSTANCE}"
+CONFIG_FILE=${CONFIG_FILE/\~/$HOME}
+
+# Config file needs the following settings:
+MAIL_SERVER="imap.gmail.com:993"
+MAIL_USER="oleg@mingalev.net"
+MAIL_PASSWORD="180ScuHepAc0"
+MAIL_FOLDER="INBOX"
+
+#if [[ ! -f "${CONFIG_FILE}" ]]; then
+#  echo "${CONFIG_FILE}"
+#  exit 33
+#fi
+
+#source "${CONFIG_FILE}"
+
+#MAIN_DOMAIN=$(expr match "${MAIL_SERVER}" '.*\.\(.*\..*\)' | awk -F ':' '{print $1}')
+MAIN_DOMAIN="https://gmail.com"
+
+# Add https so xdg knows that it's a website
+if [[ "${MAIN_DOMAIN}" != http* ]]; then
+  MAIN_DOMAIN="https://${MAIN_DOMAIN}"
+fi
+
+# Left click
+if [[ "${BLOCK_BUTTON}" -eq 1 ]]; then
+  xdg-open "${MAIN_DOMAIN}" > /dev/null 2> /dev/null &
+fi
+
+MAIL_FILE="/tmp/.mail"
+URGENT_VALUE="10"
+
+GET_UNREAD=$(cat<<EOF
+? LOGIN "${MAIL_USER}" "${MAIL_PASSWORD}"
+? SELECT INBOX
+? STATUS "${MAIL_FOLDER}" (unseen)
+? SEARCH X-GM-LABELS Important
+? SEARCH UNSEEN
+? LOGOUT
+EOF
+)
+
+echo "${GET_UNREAD}" | openssl s_client -connect "${MAIL_SERVER}" -crlf -ign_eof > "${MAIL_FILE}" 2>/dev/null 
+UNREAD_COUNT=$(cat "${MAIL_FILE}" | grep -i "UNSEEN" | grep -oE "[0-9]*" | head -n 1)
+
+IMPORTANT_UNREAD=$(comm -12 \
+    <(cat "${MAIL_FILE}" | grep -i "* SEARCH" | head -n 1 | tail -c +10 | sed 's/ /\n/g' | tr -cd '[:print:]\n' | sort ) \
+    <(cat "${MAIL_FILE}" | grep -i "* SEARCH" | tail -n 1 | tail -c +10 | sed 's/ /\n/g' | tr -cd '[:print:]\n' | sort ) \
+| wc -l)
+
+
+# For security reasons
+rm "${MAIL_FILE}"
+
+if [[ "${UNREAD_COUNT}" = "" ]]; then
+  exit
+fi
+
+echo "MAIL ${UNREAD_COUNT}/${IMPORTANT_UNREAD}"
+echo "MAIL ${UNREAD_COUNT}/${IMPORTANT_UNREAD}"
+echo ""
+
+if [[ "${UNREAD_COUNT}" -ge URGENT_VALUE ]] || [[ "${IMPORTANT_UNREAD}" -gt 0 ]]; then
+  exit 33
+fi

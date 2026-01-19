@@ -1,0 +1,54 @@
+#!/bin/bash
+
+STATUS_FILE=/run/user/1000/homevpn-check
+IP_FILE=/run/user/1000/current-ip
+HOMEVPN_IP="35.204.14.119"
+
+OK=1
+
+if [ -f $STATUS_FILE ]; then
+    STATUS=`cat $STATUS_FILE`
+else
+    OK=0
+fi
+
+if [ -f $IP_FILE ]; then
+    IP=`cat $IP_FILE`
+else
+    OK=0
+fi
+
+if [ $OK -eq 0 ]; then
+    echo "HOMEVPN fail"
+    echo "HOMEVPN fail"
+    echo ""
+    exit 33
+else
+    if [ -z $STATUS ]; then
+        echo;
+        echo;
+        echo;
+    else
+        PRINT_ST=$STATUS
+        if [ "$STATUS" = "up" ]; then
+            if [ "$IP" = "$HOMEVPN_IP" ]; then
+                COLOR="#FFFFFF";
+            else
+                COLOR="#FFFF44";
+                PRINT_ST="almost $STATUS"
+            fi
+            SWITCH_STATE=down
+        else
+            COLOR="#666666";
+            SWITCH_STATE=up
+        fi
+        echo "HOMEVPN $PRINT_ST";
+        echo "HOMEVPN $PRINT_ST";
+        echo $COLOR
+    fi
+fi
+
+if [[ "${BLOCK_BUTTON}" -eq 1 ]] && [[ $OK -eq 1 ]] ; then
+    homevpn &
+fi
+
