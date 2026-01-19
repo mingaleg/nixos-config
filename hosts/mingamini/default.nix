@@ -9,14 +9,13 @@
     [
       ./hardware-configuration.nix
       ../../modules/core-desktop
-      ../../modules/vbox-guest.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "minganix";
+  networking.hostName = "mingamini";
 
   sound.enable = true;
   hardware.pulseaudio.enable = true;

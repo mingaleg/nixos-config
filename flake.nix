@@ -2,13 +2,13 @@
   description = "mingaleg's NixOS Flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
 
     nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
 
     # home-manager, used for managing user configuration
     home-manager = {
-      url = "github:nix-community/home-manager/release-23.05";
+      url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -37,6 +37,15 @@
           specialArgs = inputs;
           modules = [
             ./hosts/minganix
+          ] ++ home-manager-modules;
+        };
+
+        # Run `sudo nixos-rebuild switch --flake .#mingamini` to deploy this configuration
+        "mingamini" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = inputs;
+          modules = [
+            ./hosts/mingamini
           ] ++ home-manager-modules;
         };
       };

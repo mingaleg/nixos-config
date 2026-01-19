@@ -22,7 +22,7 @@
     useXkbConfig = true; # use xkbOptions in tty.
   };
 
-  fonts.fonts = with pkgs; [
+  fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk
     noto-fonts-emoji
@@ -38,8 +38,8 @@
 
   services.xserver = {
     enable = true;
-    layout = "us,ru";
-    xkbOptions = "grp:caps_toggle";
+    xkb.layout = "us,ru";
+    xkb.options = "grp:caps_toggle";
 
     desktopManager = {
       xterm.enable = false;
