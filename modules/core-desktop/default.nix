@@ -70,7 +70,6 @@
     packages = with pkgs; [
       alacritty
       feh
-      google-chrome
       vlc
     ];
     openssh.authorizedKeys.keys = [

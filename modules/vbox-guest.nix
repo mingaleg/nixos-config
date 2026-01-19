@@ -21,8 +21,5 @@
       virtualbox-clipboard = vbox-client "Clipboard" "--clipboard";
     };
 
-  virtualisation.virtualbox.guest = {
-    enable = true;
-    x11 = true;
-  };
+  virtualisation.virtualbox.guest.enable = true;
 }

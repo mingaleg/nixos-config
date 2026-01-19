@@ -47,7 +47,15 @@
           specialArgs = inputs;
           modules = [
             ./hosts/mingamini
-          ] ++ home-manager-modules;
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "backup";
+              home-manager.users.mingaleg = import ./home-mingamini.nix;
+              home-manager.extraSpecialArgs = inputs;
+            }
+          ];
         };
       };
     };
