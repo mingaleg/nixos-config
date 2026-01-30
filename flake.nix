@@ -57,7 +57,19 @@
             }
           ];
         };
+
+        # Raspberry Pi configuration
+        "pi" = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = inputs;
+          modules = [
+            ./hosts/pi
+          ];
+        };
       };
+
+      # SD image output for easy building
+      images.pi = self.nixosConfigurations.pi.config.system.build.sdImage;
     };
 }
 
