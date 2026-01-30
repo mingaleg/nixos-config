@@ -78,6 +78,6 @@
       };
 
       # SD image output for easy building
-      images.pi = self.nixosConfigurations.pi.config.system.build.sdImage;
+      images.pi = self.nixosConfigurations.pi-sd-image.config.system.build.sdImage;
     };
 }
