@@ -66,10 +66,18 @@
             ./hosts/pi
           ];
         };
+
+        # Raspberry Pi SD image configuration
+        "pi-sd-image" = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = inputs;
+          modules = [
+            ./hosts/pi/sd-image.nix
+          ];
+        };
       };
 
       # SD image output for easy building
       images.pi = self.nixosConfigurations.pi.config.system.build.sdImage;
     };
 }
-
