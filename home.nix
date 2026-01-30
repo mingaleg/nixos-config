@@ -19,10 +19,26 @@
     };
   };
 
+  programs.jujutsu = {
+    enable = true;
+    settings = {
+      user = {
+        name = "Oleg Mingalev";
+        email = "oleg@mingalev.net";
+      };
+    };
+  };
+
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
     rofi
     claude-code
+    alacritty
+    feh
+    vlc
+    wireshark
+    telegram-desktop
+    slack
   ];
 
   # starship - a customizable prompt for any shell
@@ -82,7 +98,7 @@
     TERMINAL = "alacritty";
   };
 
-  # i3, i3blocks, and rofi configuration managed via Nix
+  # i3, i3blocks, rofi, and picom configuration managed via Nix
   home.file = {
     ".config/i3/config".source = ./etc/i3/config;
     ".config/i3blocks/config".source = ./etc/i3blocks/config;
@@ -98,6 +114,7 @@
       source = ./etc/rofi;
       recursive = true;
     };
+    ".config/picom/picom.conf".source = ./etc/picom/picom.conf;
   };
 
   home.stateVersion = "25.11";

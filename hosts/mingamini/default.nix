@@ -17,13 +17,34 @@
 
   networking.hostName = "mingamini";
 
+  # Enable Intel graphics drivers and hardware acceleration
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver  # LIBVA_DRIVER_NAME=iHD
+      intel-vaapi-driver  # LIBVA_DRIVER_NAME=i965 (older but sometimes better)
+      libva-vdpau-driver
+      libvdpau-va-gl
+      intel-compute-runtime # OpenCL support
+    ];
+  };
+
+  # Use Intel driver with TearFree option
+  services.xserver.videoDrivers = [ "intel" ];
+
+  # Enable TearFree to prevent screen tearing at X server level
+  services.xserver.deviceSection = ''
+    Option "TearFree" "true"
+    Option "DRI" "3"
+  '';
+
   # Enable wifi support with iwd (provides iwctl)
   networking.wireless.iwd.enable = true;
 
   # Rotate display to the right at X server level
   services.xserver.xrandrHeads = [
     {
-      output = "DSI-1";
+      output = "DSI1";
       primary = true;
       monitorConfig = ''
         Option "Rotate" "right"
@@ -31,9 +52,15 @@
     }
   ];
 
-  # Rotate touchscreen to match display rotation
+  # Rotate touchscreen to match display rotation and configure touchpad scrolling
   services.xserver.displayManager.sessionCommands = ''
+    # Rotate touchscreen to match display rotation
     ${pkgs.xorg.xinput}/bin/xinput set-prop "GXTP7380:00 27C6:0113" "Coordinate Transformation Matrix" 0 1 0 -1 0 1 0 0 1
+
+    # Enable button scrolling on HAILUCK touchpad (middle button)
+    ${pkgs.xorg.xinput}/bin/xinput set-prop "HAILUCK CO.,LTD USB KEYBOARD Mouse" "libinput Scroll Method Enabled" 0 0 1
+    ${pkgs.xorg.xinput}/bin/xinput set-prop "HAILUCK CO.,LTD USB KEYBOARD Mouse" "libinput Button Scrolling Button" 2
+    ${pkgs.xorg.xinput}/bin/xinput set-prop "HAILUCK CO.,LTD USB KEYBOARD Mouse" "libinput Middle Emulation Enabled" 0
   '';
 
   # Enable sound with pipewire.

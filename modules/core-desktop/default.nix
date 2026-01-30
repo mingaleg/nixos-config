@@ -64,14 +64,12 @@
     };
   };
 
+  # Enable libinput for input device management
+  services.libinput.enable = true;
+
   users.users.mingaleg = {
     isNormalUser = true;
     extraGroups = [ "wheel" "nixos" ];
-    packages = with pkgs; [
-      alacritty
-      feh
-      vlc
-    ];
     openssh.authorizedKeys.keys = [
       (builtins.readFile ../../ssh-keys/mingaleg-masterkey.pub)
     ];
@@ -86,6 +84,24 @@
 
   environment = {
     pathsToLink = [ "/libexec" ];
+  };
+
+  # SMB/CIFS mount for mingastorage
+  fileSystems."/mnt/mingastorage" = {
+    device = "//172.26.249.252/mingastorage";
+    fsType = "cifs";
+    options = [
+      "x-systemd.automount"
+      "noauto"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.mount-timeout=5s"
+      "credentials=/etc/nixos/smb-credentials"
+      "uid=1001"
+      "gid=100"
+      "file_mode=0664"
+      "dir_mode=0775"
+    ];
   };
 
   services.openssh.enable = true;

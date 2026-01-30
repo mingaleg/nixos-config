@@ -5,6 +5,7 @@
     coreutils-full
     killall
     lsof
+    pciutils
 
     gh
     git
@@ -20,8 +21,18 @@
     vim
     wget
 
-    # i3blocks dependencies
+    # Network
+    cifs-utils  # SMB/CIFS mounting
+    samba       # SMB client tools (smbclient)
+
     acpi
     perl
+
+    picom
+
+    gnumake
+
+    texlive.combined.scheme-full
+    imagemagick
   ];
 }

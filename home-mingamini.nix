@@ -11,7 +11,11 @@
       buildInputs = [ makeWrapper ];
       postBuild = ''
         wrapProgram $out/bin/google-chrome-stable \
-          --add-flags "--force-device-scale-factor=1.5"
+          --add-flags "--force-device-scale-factor=1.5" \
+          --add-flags "--enable-features=VaapiVideoDecodeLinuxGL" \
+          --add-flags "--disable-features=UseChromeOSDirectVideoDecoder" \
+          --add-flags "--enable-gpu-rasterization" \
+          --add-flags "--enable-zero-copy"
 
         # Patch desktop files to use the wrapped binary
         for desktop in $out/share/applications/*.desktop; do
