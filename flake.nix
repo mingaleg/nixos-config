@@ -11,14 +11,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Raspberry Pi support - use main branch (stable)
     nixos-raspberrypi = {
       url = "github:nvmd/nixos-raspberrypi/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  # Binary cache for pre-built packages
   nixConfig = {
     extra-substituters = [
       "https://nixos-raspberrypi.cachix.org"
@@ -67,23 +65,38 @@
           ];
         };
 
-        # Raspberry Pi 5 - Use their helper function
+        # Raspberry Pi 5 - running system
         "pi" = nixos-raspberrypi.lib.nixosSystem {
           specialArgs = inputs;
           modules = [
-            # Hardware specific modules
             {
               imports = with nixos-raspberrypi.nixosModules; [
                 raspberry-pi-5.base
-                raspberry-pi-5.page-size-16k  # Recommended for RPi5
-                raspberry-pi-5.display-vc4    # If you have a display
+                raspberry-pi-5.page-size-16k
+                raspberry-pi-5.display-vc4
               ];
             }
-            
-            # Your configuration
+            ./hosts/pi
+          ];
+        };
+
+        # Raspberry Pi 5 - SD image installer
+        "pi-installer" = nixos-raspberrypi.lib.nixosInstaller {
+          specialArgs = inputs;
+          modules = [
+            {
+              imports = with nixos-raspberrypi.nixosModules; [
+                raspberry-pi-5.base
+                raspberry-pi-5.page-size-16k
+                raspberry-pi-5.display-vc4
+              ];
+            }
             ./hosts/pi
           ];
         };
       };
+
+      # SD image output
+      images.pi = self.nixosConfigurations.pi-installer.config.system.build.sdImage;
     };
 }
