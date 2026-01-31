@@ -114,4 +114,7 @@
     find /etc/nixos -type d -exec chmod g+s  {} +
     find /etc/nixos -type f -exec chmod 0664 {} +
   '';
+
+  # Enable building for aarch64
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 }
