@@ -30,4 +30,8 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   time.timeZone = "Europe/London";
   system.stateVersion = "25.11";
+
+  # Cross-compilation
+  nixpkgs.buildPlatform.system = "x86_64-linux";
+  nixpkgs.hostPlatform.system = "aarch64-linux";
 }
