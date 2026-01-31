@@ -1,15 +1,6 @@
 { config, pkgs, ... }:
 
 {
-  imports = [
-    # skipped for now -- will add after a first boot
-    # ./hardware-configuration.nix
-  ];
-
-  # Boot configuration for Raspberry Pi
-  boot.loader.grub.enable = false;
-  boot.loader.generic-extlinux-compatible.enable = true;
-
   networking.hostName = "pi";
   
   # Enable networking
@@ -36,13 +27,7 @@
     tmux
   ];
 
-  # Allow unfree packages if needed
-  nixpkgs.config.allowUnfree = true;
-
-  # Enable flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
   time.timeZone = "Europe/London";
-
   system.stateVersion = "25.11";
 }

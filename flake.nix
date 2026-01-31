@@ -6,14 +6,29 @@
 
     nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
 
-    # home-manager, used for managing user configuration
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Raspberry Pi support - use main branch (stable)
+    nixos-raspberrypi = {
+      url = "github:nvmd/nixos-raspberrypi/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  # Binary cache for pre-built packages
+  nixConfig = {
+    extra-substituters = [
+      "https://nixos-raspberrypi.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+    ];
+  };
+
+  outputs = { self, nixpkgs, home-manager, nixos-raspberrypi, ... }@inputs:
     let
       home-manager-modules = [
         home-manager.nixosModules.home-manager
@@ -28,11 +43,6 @@
     in
     {
       nixosConfigurations = {
-        # By default, NixOS will try to refer the nixosConfiguration with its hostname.
-        # so the system named `minganix` will use this configuration.
-        # However, the configuration name can also be specified using `sudo nixos-rebuild switch --flake /path/to/flakes/directory#<name>`.
-        # The `nixpkgs.lib.nixosSystem` function is used to build this configuration, the following attribute set is its parameter.
-        # Run `sudo nixos-rebuild switch --flake .#minganix` in the flake's directory to deploy this configuration on any NixOS system
         "minganix" = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = inputs;
@@ -41,7 +51,6 @@
           ] ++ home-manager-modules;
         };
 
-        # Run `sudo nixos-rebuild switch --flake .#mingamini` to deploy this configuration
         "mingamini" = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = inputs;
@@ -58,26 +67,23 @@
           ];
         };
 
-        # Raspberry Pi configuration
-        "pi" = nixpkgs.lib.nixosSystem {
-          system = "aarch64-linux";
+        # Raspberry Pi 5 - Use their helper function
+        "pi" = nixos-raspberrypi.lib.nixosSystem {
           specialArgs = inputs;
           modules = [
+            # Hardware specific modules
+            {
+              imports = with nixos-raspberrypi.nixosModules; [
+                raspberry-pi-5.base
+                raspberry-pi-5.page-size-16k  # Recommended for RPi5
+                raspberry-pi-5.display-vc4    # If you have a display
+              ];
+            }
+            
+            # Your configuration
             ./hosts/pi
           ];
         };
-
-        # Raspberry Pi SD image configuration
-        "pi-sd-image" = nixpkgs.lib.nixosSystem {
-          system = "aarch64-linux";
-          specialArgs = inputs;
-          modules = [
-            ./hosts/pi/sd-image.nix
-          ];
-        };
       };
-
-      # SD image output for easy building
-      images.pi = self.nixosConfigurations.pi-sd-image.config.system.build.sdImage;
     };
 }
