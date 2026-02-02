@@ -1,15 +1,18 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
-  imports = [
+  imports = lib.optionals (builtins.pathExists ./hardware-configuration.nix) [
     ./hardware-configuration.nix
   ];
 
   networking.hostName = "pi";
   
+  # Enable remote deployments
+  nix.settings.trusted-users = [ "root" "mingaleg" ];
+  
   # Mount NTFS drive to /mnt/pegasus
   fileSystems."/mnt/pegasus" = {
-    device = "/dev/disk/by-uuid/B66C1D7C6C1D3897";  # Using UUID is more reliable
+    device = "/dev/disk/by-uuid/B66C1D7C6C1D3897";
     fsType = "ntfs-3g";
     options = [ "defaults" "nofail" "uid=1000" "gid=100" "dmask=022" "fmask=133" ];
   };
@@ -36,7 +39,7 @@
     git
     htop
     tmux
-    ntfs3g  # NTFS support
+    ntfs3g
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
