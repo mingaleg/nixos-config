@@ -3,6 +3,8 @@
 {
   imports = lib.optionals (builtins.pathExists ./hardware-configuration.nix) [
     ./hardware-configuration.nix
+  ] ++ [
+    ./samba-server.nix
   ];
 
   networking.hostName = "pi";
