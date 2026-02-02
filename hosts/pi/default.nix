@@ -42,6 +42,13 @@
     htop
     tmux
     ntfs3g
+
+    # Internet speed diagnostics
+    ethtool
+    iproute2
+    pciutils
+    usbutils
+    iperf3
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
