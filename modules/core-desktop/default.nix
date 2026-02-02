@@ -117,4 +117,6 @@
 
   # Enable building for aarch64
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+  # Enable remote deployments and binary cache
+  nix.settings.trusted-users = [ "root" "mingaleg" ];
 }
