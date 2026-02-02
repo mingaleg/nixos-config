@@ -1,7 +1,18 @@
 { config, pkgs, ... }:
 
 {
+  imports = [
+    ./hardware-configuration.nix
+  ];
+
   networking.hostName = "pi";
+  
+  # Mount NTFS drive to /mnt/pegasus
+  fileSystems."/mnt/pegasus" = {
+    device = "/dev/disk/by-uuid/B66C1D7C6C1D3897";  # Using UUID is more reliable
+    fsType = "ntfs-3g";
+    options = [ "defaults" "nofail" "uid=1000" "gid=100" "dmask=022" "fmask=133" ];
+  };
   
   # Enable networking
   networking.networkmanager.enable = true;
@@ -25,6 +36,7 @@
     git
     htop
     tmux
+    ntfs3g  # NTFS support
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
