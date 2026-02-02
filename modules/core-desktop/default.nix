@@ -86,9 +86,8 @@
     pathsToLink = [ "/libexec" ];
   };
 
-  # SMB/CIFS mount for mingastorage
-  fileSystems."/mnt/mingastorage" = {
-    device = "//172.26.249.252/mingastorage";
+  fileSystems."/mnt/pegasus" = {
+    device = "//172.26.249.101/pegasus";
     fsType = "cifs";
     options = [
       "x-systemd.automount"
@@ -96,7 +95,7 @@
       "x-systemd.idle-timeout=60"
       "x-systemd.device-timeout=5s"
       "x-systemd.mount-timeout=5s"
-      "credentials=/etc/nixos/smb-credentials"
+      "credentials=/etc/nixos/smb-credentials-pegasus"
       "uid=1001"
       "gid=100"
       "file_mode=0664"
