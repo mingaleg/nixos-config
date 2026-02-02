@@ -19,8 +19,8 @@
     };
 
   fileSystems."/boot/firmware" =
-    { device = "systemd-1";
-      fsType = "autofs";
+    { device = "/dev/disk/by-uuid/2175-794E";
+      fsType = "vfat";
     };
 
   swapDevices = [ ];
