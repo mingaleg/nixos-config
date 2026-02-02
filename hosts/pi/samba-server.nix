@@ -7,18 +7,18 @@
     securityType = "user";
     openFirewall = true;
 
-    extraConfig = ''
-      workgroup = WORKGROUP
-      server string = Pi Storage
-      netbios name = pi
-      security = user
-      hosts allow = 172.26.249.0/24
-      hosts deny = 0.0.0.0/0
-      guest account = nobody
-      map to guest = bad user
-    '';
+    settings = {
+      global = {
+        workgroup = "WORKGROUP";
+        "server string" = "Pi Storage";
+        "netbios name" = "pi";
+        security = "user";
+        "hosts allow" = "192.168.0.0/16 172.26.0.0/16";
+        "hosts deny" = "0.0.0.0/0";
+        "guest account" = "nobody";
+        "map to guest" = "bad user";
+      };
 
-    shares = {
       pegasus = {
         path = "/mnt/pegasus";
         browseable = "yes";
