@@ -29,6 +29,7 @@
           "172.26.249.1 mingapred.home.mingalev.net mingapred"
           "172.26.249.253 pi.home.mingalev.net pi"
           "172.26.249.254 linksys.home.mingalev.net linksys"
+          "172.26.249.11 mingamini.home.mingalev.net mingamini"
         ];
       };
       webserver = {
@@ -42,7 +43,10 @@
       };
       misc = {
         # Explicitly tell dnsmasq to resolve this domain locally, never forward upstream
-        dnsmasq_lines = [ "local=/home.mingalev.net/" ];
+        dnsmasq_lines = [
+          "local=/home.mingalev.net/"
+          "domain=home.mingalev.net"  # Send domain to DHCP clients
+        ];
       };
       dhcp = {
         active = true;
@@ -57,6 +61,7 @@
           "2c:cf:67:cc:55:39,172.26.249.253,pi"
           "28:d0:ea:c9:d0:a1,172.26.249.1,mingapred"
           "f4:5c:89:8a:82:8f,172.26.249.10,mingamac"
+          "f4:7b:09:f7:f0:1c,172.26.249.11,mingamini"
         ];
       };
     };
