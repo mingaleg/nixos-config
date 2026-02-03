@@ -39,6 +39,10 @@
           timeout = 43200; # 12h
         };
       };
+      misc = {
+        # Explicitly tell dnsmasq to resolve this domain locally, never forward upstream
+        dnsmasq_lines = [ "local=/home.mingalev.net/" ];
+      };
     };
 
     # Blocklists - Steven Black's unified hosts
