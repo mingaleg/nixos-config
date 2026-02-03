@@ -33,7 +33,8 @@
   # Disable systemd-resolved DNS stub listener to avoid port 53 conflict
   services.resolved = {
     enable = true;
-    dnsstub = false;
-    llmnr = "false";
+    extraConfig = ''
+      DNSStubListener=no
+    '';
   };
 }
