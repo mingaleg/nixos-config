@@ -1,5 +1,8 @@
 { config, pkgs, nix-vscode-extensions, ... }:
 
+let
+  layout = import ./home-network/layout.nix;
+in
 {
   home.username = "mingaleg";
   home.homeDirectory = "/home/mingaleg";
@@ -96,6 +99,25 @@
   home.sessionVariables = {
     EDITOR = "vim";
     TERMINAL = "alacritty";
+  };
+
+  programs.ssh = {
+    enable = true;
+    matchBlocks = {
+      "home-canonicalize" = {
+        host = "* !*.* !localhost";
+        extraOptions = {
+          CanonicalDomains = layout.domain;
+          CanonicalizeHostname = "yes";
+          CanonicalizeFallbackLocal = "no";
+        };
+      };
+      "home-identity" = {
+        host = "*.${layout.domain}";
+        identityFile = "~/.ssh/mingaleg-masterkey";
+        identitiesOnly = true;
+      };
+    };
   };
 
   # i3, i3blocks, rofi, and picom configuration managed via Nix
