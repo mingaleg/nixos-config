@@ -103,6 +103,7 @@ in
 
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     matchBlocks = {
       "home-canonicalize" = {
         host = "* !*.* !localhost";
