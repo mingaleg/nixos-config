@@ -4,7 +4,7 @@
   services.pihole-web = {
     enable = true;
     ports = [80];
-  }
+  };
 
   services.pihole-ftl = {
     enable = true;
