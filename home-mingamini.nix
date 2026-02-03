@@ -3,6 +3,11 @@
 {
   imports = [ ./home.nix ];
 
+  programs.ssh.matchBlocks."github" = {
+    host = "github.com";
+    identityFile = "~/.ssh/mingaleg-1password";
+  };
+
   # mingamini-specific: Override Chrome with custom scaling for smaller UI
   home.packages = with pkgs; [
     (symlinkJoin {

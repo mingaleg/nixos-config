@@ -60,7 +60,7 @@ in
         active = true;
         start = layout.network.dhcp.start;
         end = layout.network.dhcp.end;
-        router = layout.network.router;
+        router = layout.network.defaultGateway;
         netmask = layout.network.netmask;
         leaseTime = layout.network.dhcp.leaseTime;
         hosts = dhcpHosts;

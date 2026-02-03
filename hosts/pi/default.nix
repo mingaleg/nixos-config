@@ -1,5 +1,8 @@
 { config, pkgs, lib, ... }:
 
+let
+  layout = import ../../home-network/layout.nix;
+in
 {
   imports = lib.optionals (builtins.pathExists ./hardware-configuration.nix) [
     ./hardware-configuration.nix
@@ -22,11 +25,11 @@
   networking.useDHCP = false;
   networking.interfaces.end0 = {
     ipv4.addresses = [{
-      address = "172.26.249.253";
-      prefixLength = 24;
+      address = layout.machines.pi.ip;
+      prefixLength = layout.network.prefixLength;
     }];
   };
-  networking.defaultGateway = "172.26.249.254";
+  networking.defaultGateway = layout.network.defaultGateway;
   networking.nameservers = [ "127.0.0.1" "1.1.1.1" ];  # Use itself for DNS
   
   services.openssh.enable = true;

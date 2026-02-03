@@ -8,7 +8,7 @@ let
     prefix = networkPrefix;
     prefixLength = 24;
     netmask = "255.255.255.0";
-    router = ip 254;
+    defaultGateway = ip 254;
     dhcp = {
       start = ip 180;
       end = ip 249;
