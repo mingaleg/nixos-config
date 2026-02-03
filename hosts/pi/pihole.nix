@@ -23,11 +23,14 @@
     };
 
     # Blocklists - Steven Black's unified hosts
-    lists = {
-      adlists = [
-        "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
-      ];
-    };
+    lists = [
+      {
+        url = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts";
+        type = "block";
+        enabled = true;
+        description = "Steven Black's HOSTS";
+      }
+    ];
   };
 
   # Disable systemd-resolved DNS stub listener to avoid port 53 conflict
