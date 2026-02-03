@@ -23,6 +23,7 @@
         domainNeeded = true;
         expandHosts = true;
         domain.name = "home.mingalev.net";
+        domain.local = true;  # Don't forward queries for this domain upstream
         hosts = [
           "172.26.249.1 mingapred"
           "172.26.249.253 pi"
