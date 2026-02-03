@@ -18,14 +18,22 @@
     options = [ "defaults" "nofail" "uid=1000" "gid=100" "dmask=022" "fmask=133" ];
   };
   
-  networking.networkmanager.enable = true;
-  networking.nameservers = [ "1.1.1.1" "1.0.0.1" "8.8.8.8" ];
+  # Static IP for the DHCP/DNS server
+  networking.useDHCP = false;
+  networking.interfaces.end0 = {
+    ipv4.addresses = [{
+      address = "172.26.249.253";
+      prefixLength = 24;
+    }];
+  };
+  networking.defaultGateway = "172.26.249.254";
+  networking.nameservers = [ "127.0.0.1" "1.1.1.1" ];  # Use itself for DNS
   
   services.openssh.enable = true;
   
   users.users.mingaleg = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [ "wheel" ];
     openssh.authorizedKeys.keys = [
       (builtins.readFile ../../ssh-keys/mingaleg-masterkey.pub)
     ];
