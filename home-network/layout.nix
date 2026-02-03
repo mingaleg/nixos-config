@@ -31,6 +31,11 @@ let
       mac = "f4:7b:09:f7:f0:1c";
     };
 
+    pixel10 = {
+      ip = ip 50;
+      mac = "b0:d5:fb:b7:b9:22";
+    };
+
     chromecast-ultra = {
       ip = ip 159;
       mac = "00:f6:20:79:3d:4f";
