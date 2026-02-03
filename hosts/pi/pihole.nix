@@ -25,9 +25,9 @@
         domain.name = "home.mingalev.net";
         domain.local = true;  # Don't forward queries for this domain upstream
         hosts = [
-          "172.26.249.1 mingapred"
-          "172.26.249.253 pi"
-          "172.26.249.254 syslink"
+          "172.26.249.1 mingapred.home.mingalev.net mingapred"
+          "172.26.249.253 pi.home.mingalev.net pi"
+          "172.26.249.254 syslink.home.mingalev.net syslink"
         ];
       };
       webserver = {
