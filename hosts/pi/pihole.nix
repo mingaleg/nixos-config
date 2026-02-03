@@ -31,9 +31,12 @@
       };
       webserver = {
         port = "80";
-      };
-      misc = {
-        readOnly = false;  # TODO: set to true after configuring password
+        api = {
+          pwhash = "$BALLOON-SHA256$v=1$s=1024,t=32$aEOQdLB2YJE+JonvYAkS8w==$1Rrlzx4qKDP8c+G+3FAHbMc7BKym5ZK+1h9SFOYSsKI=";
+        };
+        session = {
+          timeout = 43200; # 12h
+        };
       };
     };
 
