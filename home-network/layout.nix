@@ -44,7 +44,7 @@ let
     keenetic = {
       ip = ip 252;
       mac = "e4:18:6b:28:a0:70";
-    }
+    };
     pi = {
       ip = ip 253;
       mac = "2c:cf:67:cc:55:39";
