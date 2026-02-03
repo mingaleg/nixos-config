@@ -5,6 +5,7 @@
     ./hardware-configuration.nix
   ] ++ [
     ./samba-server.nix
+    ./pihole.nix
   ];
 
   networking.hostName = "pi";
