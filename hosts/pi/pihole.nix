@@ -1,5 +1,18 @@
 { config, pkgs, lib, ... }:
 
+let
+  layout = import ../../home-network/layout.nix;
+
+  # Generate DNS host entries: "IP FQDN shortname"
+  dnsHosts = lib.mapAttrsToList (name: m:
+    "${m.ip} ${name}.${layout.domain} ${name}"
+  ) layout.machines;
+
+  # Generate DHCP static leases for machines with MAC addresses: "MAC,IP,hostname"
+  dhcpHosts = lib.mapAttrsToList (name: m:
+    "${m.mac},${m.ip},${name}"
+  ) (lib.filterAttrs (_: m: m ? mac) layout.machines);
+in
 {
   services.pihole-web = {
     enable = true;
@@ -23,14 +36,9 @@
         ];
         domainNeeded = true;
         expandHosts = true;
-        domain.name = "home.mingalev.net";
+        domain.name = layout.domain;
         domain.local = true;  # Don't forward queries for this domain upstream
-        hosts = [
-          "172.26.249.1 mingapred.home.mingalev.net mingapred"
-          "172.26.249.253 pi.home.mingalev.net pi"
-          "172.26.249.254 linksys.home.mingalev.net linksys"
-          "172.26.249.11 mingamini.home.mingalev.net mingamini"
-        ];
+        hosts = dnsHosts;
       };
       webserver = {
         port = "80";
@@ -44,25 +52,18 @@
       misc = {
         # Explicitly tell dnsmasq to resolve this domain locally, never forward upstream
         dnsmasq_lines = [
-          "local=/home.mingalev.net/"
-          "domain=home.mingalev.net"  # Send domain to DHCP clients
+          "local=/${layout.domain}/"
+          "domain=${layout.domain}"  # Send domain to DHCP clients
         ];
       };
       dhcp = {
         active = true;
-        start = "172.26.249.100";
-        end = "172.26.249.149";
-        router = "172.26.249.254";
-        netmask = "255.255.255.0";
-        leaseTime = "7h";
-        # Static leases: "MAC,IP,hostname,lease_time"
-        hosts = [
-          "00:f6:20:79:3d:4f,172.26.249.159,chromecast-ultra"
-          "2c:cf:67:cc:55:39,172.26.249.253,pi"
-          "28:d0:ea:c9:d0:a1,172.26.249.1,mingapred"
-          "f4:5c:89:8a:82:8f,172.26.249.10,mingamac"
-          "f4:7b:09:f7:f0:1c,172.26.249.11,mingamini"
-        ];
+        start = layout.network.dhcp.start;
+        end = layout.network.dhcp.end;
+        router = layout.network.router;
+        netmask = layout.network.netmask;
+        leaseTime = layout.network.dhcp.leaseTime;
+        hosts = dhcpHosts;
       };
     };
 
