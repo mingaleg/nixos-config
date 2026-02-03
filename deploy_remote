@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+HOST=$1
+
+nixos-rebuild switch --flake .#${HOST} --target-host ${HOST} --sudo --ask-sudo-password
