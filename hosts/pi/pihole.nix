@@ -32,6 +32,9 @@
       webserver = {
         port = "80";
       };
+      misc = {
+        readOnly = false;  # TODO: set to true after configuring password
+      };
     };
 
     # Blocklists - Steven Black's unified hosts
