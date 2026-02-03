@@ -156,6 +156,8 @@ in
   # Alternatively, use ondemand but with better settings
   # powerManagement.cpuFreqGovernor = "ondemand";
 
+  boot.loader.raspberry-pi.bootloader = "kernel";
+
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   time.timeZone = "Europe/London";
   system.stateVersion = "25.11";
