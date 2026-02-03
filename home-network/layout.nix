@@ -41,13 +41,17 @@ let
       mac = "00:f6:20:79:3d:4f";
     };
 
+    keenetic = {
+      ip = ip 252;
+      mac = "e4:18:6b:28:a0:70";
+    }
     pi = {
       ip = ip 253;
       mac = "2c:cf:67:cc:55:39";
     };
     linksys = {
       ip = ip 254;
-      # No MAC - router, not a DHCP client
+      mac = "80:69:1a:d7:62:fc";
     };
   };
 
