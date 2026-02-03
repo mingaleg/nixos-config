@@ -10,8 +10,8 @@ let
     netmask = "255.255.255.0";
     router = ip 254;
     dhcp = {
-      start = ip 100;
-      end = ip 149;
+      start = ip 180;
+      end = ip 249;
       leaseTime = "7h";
     };
   };
