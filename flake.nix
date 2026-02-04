@@ -14,6 +14,11 @@
     nixos-raspberrypi = {
       url = "github:nvmd/nixos-raspberrypi/main";
     };
+
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
@@ -25,7 +30,7 @@
     ];
   };
 
-  outputs = { self, nixpkgs, home-manager, nixos-raspberrypi, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, nixos-raspberrypi, agenix, ... }@inputs:
     let
       home-manager-modules = [
         home-manager.nixosModules.home-manager
@@ -75,6 +80,7 @@
                 raspberry-pi-5.display-vc4
               ];
             }
+            agenix.nixosModules.default
             ./hosts/pi
           ];
         };
@@ -90,6 +96,7 @@
                 raspberry-pi-5.display-vc4
               ];
             }
+            agenix.nixosModules.default
             ./hosts/pi
           ];
         };

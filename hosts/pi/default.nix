@@ -9,7 +9,11 @@ in
   ] ++ [
     ./samba-server.nix
     ./pihole.nix
+    ./strongswan.nix
   ];
+
+  # Agenix configuration
+  age.identityPaths = [ "/root/.ssh/agenix-hosts" ];
 
   networking.hostName = "pi";
   
@@ -47,9 +51,13 @@ in
     vim git htop tmux ntfs3g
     ethtool iproute2 pciutils usbutils
     iperf3 curl wget bind speedtest-cli
+    strongswan
   ];
 
   boot.kernel.sysctl = {
+    # Enable IP forwarding for VPN
+    "net.ipv4.ip_forward" = 1;
+
     "net.core.rmem_max" = 134217728;      # 128 MB
     "net.core.wmem_max" = 134217728;      # 128 MB
     "net.core.rmem_default" = 16777216;   # 16 MB default

@@ -1,5 +1,114 @@
 # StrongSwan VPN Setup for Pi
 
+## 🎯 Current Status
+
+**NixOS Configuration: ✅ COMPLETE**
+All NixOS configuration files have been created and deployed successfully.
+
+**Server Status: ✅ WORKING**
+All services on Pi are running correctly:
+- StrongSwan VPN server running and configured
+- Let's Encrypt certificate obtained
+- Dynamic DNS updating successfully
+- Firewall rules configured
+- NAT configured
+
+**VPN Connection: ⚠️ BLOCKED BY ISP CGNAT**
+Cannot connect from external clients due to Carrier-Grade NAT.
+- Router has private IP (100.76.193.146) instead of public IP
+- ISP uses shared public IP (185.241.165.36) for multiple customers
+- Port forwarding impossible without real public IP
+
+**Next Action Required:** Contact ISP to request a public IP address, or implement VPS relay solution.
+
+---
+
+## 📋 Next Steps (Manual Actions Required)
+
+### 1. Update Configuration TODOs ✅
+- [x] `hosts/pi/strongswan.nix` line ~24: Replace `"your-email@example.com"` with your actual email
+- [x] `hosts/pi/strongswan.nix` line ~68: Replace `"mingalev-net"` with your actual GCP Cloud DNS zone name
+
+### 2. Google Cloud Platform Setup ✅
+- [x] Create service account `acme-dns01` with DNS Administrator role
+- [x] Download JSON key (`mingaleg-net-acme-dns01.json`)
+- [x] Create/verify Cloud DNS zone exists
+- [x] Create initial DNS A record for `home.mingalev.net`
+
+### 3. Create Encrypted Secrets ✅
+- [x] `secrets/vpn-users.age` - Created
+- [x] `secrets/gcp-dns-credentials.age` - Created
+
+```bash
+cd secrets
+cat ../mingaleg-net-acme-dns01.json | EDITOR="tee" agenix -e gcp-dns-credentials.age -i ../ssh-keys/agenix-hosts
+printf "YOUR_PASSWORD" | EDITOR="tee" agenix -e vpn-users.age -i ../ssh-keys/agenix-hosts
+```
+
+### 4. Deploy Private Key to Pi ✅
+```bash
+scp ssh-keys/agenix-hosts mingaleg@pi:/tmp/ && ssh -t mingaleg@pi 'sudo mkdir -p /root/.ssh && sudo mv /tmp/agenix-hosts /root/.ssh/ && sudo chmod 600 /root/.ssh/agenix-hosts && sudo chown root:root /root/.ssh/agenix-hosts && sudo ls -la /root/.ssh/agenix-hosts && echo OK'
+```
+- [x] Key deployed to `/root/.ssh/agenix-hosts` with permissions `-rw------- 1 root root`
+- **IMPORTANT:** Backup `ssh-keys/agenix-hosts` securely!
+
+### 5. Router Configuration ✅
+- [x] Port forward UDP 500 → Pi (172.26.249.253)
+- [x] Port forward UDP 4500 → Pi (172.26.249.253)
+- [x] Add static route: 172.26.249.160/28 via 172.26.249.253
+- ⚠️ **Note:** Router behind CGNAT - port forwarding ineffective until public IP obtained
+
+### 6. Deploy to Pi ✅
+```bash
+nix flake update
+sudo nixos-rebuild switch --flake .#pi
+```
+
+### 7. Verify Services ✅
+- [x] Check IP forwarding: `sysctl net.ipv4.ip_forward` → Returns 1 ✅
+- [x] Check StrongSwan: `sudo systemctl status strongswan-swanctl` → Running ✅
+- [x] Check ACME cert: `sudo ls -la /var/lib/acme/home.mingalev.net/` → All certs present ✅
+- [x] Check DNS update: `sudo journalctl -u update-home-dns` → Working, updating to 185.241.165.36 ✅
+- [x] Check StrongSwan config: Connection 'ikev2-eap' loaded, pool 'vpn-pool' loaded ✅
+- [x] Check EAP credentials: User 'mingaleg' loaded ✅
+
+### 8. Test VPN Connection ⚠️ BLOCKED BY CGNAT
+
+**Issue Discovered:** ISP uses Carrier-Grade NAT (CGNAT)
+- Router WAN IP: `100.76.193.146` (private CGNAT range)
+- Public IP: `185.241.165.36` (shared among multiple customers)
+- Port forwarding on router doesn't help - ISP gateway doesn't forward to individual customers
+
+**Evidence:**
+- ✅ Pi receives packets from local network (172.26.249.254 → 172.26.249.253)
+- ❌ Pi receives ZERO packets from external clients
+- ✅ Router port forwarding configured correctly (UDP 500, 4500)
+- ✅ Router firewall allows traffic
+- ❌ Packets never reach the router from internet
+
+**Solutions:**
+
+#### Option 1: Request Public IP from ISP (Recommended)
+- Contact ISP and request a real public/static IP address
+- Explain need for "remote access" or "home server"
+- May cost £5-10/month extra, sometimes free
+- Once obtained, VPN will work immediately with current config
+
+#### Option 2: VPS Relay
+- Deploy a cheap VPS (£3-5/month) with public IP
+- Run WireGuard on VPS
+- Create permanent tunnel: Pi ↔ VPS
+- VPN clients connect to VPS, which relays to Pi
+- Requires additional configuration
+
+#### Option 3: Tailscale/ZeroTier
+- Mesh VPN service that works through CGNAT
+- No port forwarding needed
+- Different architecture than traditional VPN
+- Easiest workaround but requires Tailscale/ZeroTier on all clients
+
+---
+
 ## Overview
 
 | Setting | Value |
@@ -49,16 +158,20 @@ EAP-MSCHAPv2 still requires a server certificate so clients can verify they're c
 
 ## Server Setup (Pi)
 
-### Step 1: Enable IP Forwarding
+### Step 1: Enable IP Forwarding ✅
 
-Add to `hosts/pi/default.nix`:
+**Status:** Complete
+
+Added to `hosts/pi/default.nix`:
 ```nix
 boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 ```
 
-### Step 2: StrongSwan Configuration
+### Step 2: StrongSwan Configuration ✅
 
-Create `hosts/pi/strongswan.nix`:
+**Status:** Complete - See `hosts/pi/strongswan.nix`
+
+Original example:
 ```nix
 { config, pkgs, lib, ... }:
 
@@ -134,21 +247,20 @@ in
 }
 ```
 
-### Step 3: Import Module
+### Step 3: Import Module ✅
 
-In `hosts/pi/default.nix`, add to imports:
+**Status:** Complete
+
+Added to `hosts/pi/default.nix` imports:
 ```nix
-imports = [
-  ./hardware-configuration.nix
-  ./samba-server.nix
-  ./pihole.nix
-  ./strongswan.nix  # Add this
-];
+./strongswan.nix
 ```
 
-### Step 4: Certificate Setup (Let's Encrypt + Google Cloud DNS)
+### Step 4: Certificate Setup (Let's Encrypt + Google Cloud DNS) ✅
 
-#### 4a. Create Google Cloud Service Account
+**Status:** NixOS config complete, manual GCP setup required
+
+#### 4a. Create Google Cloud Service Account ⏳
 
 1. Go to Google Cloud Console > IAM & Admin > Service Accounts
 2. Create a service account (e.g., `acme-dns01`)
@@ -156,71 +268,34 @@ imports = [
 4. Create JSON key and download it
 5. Store the key securely (we'll use agenix/sops-nix)
 
-#### 4b. ACME Configuration
+#### 4b. ACME Configuration ✅
 
-```nix
-{ config, ... }:
+**Status:** Complete - Configured in `hosts/pi/strongswan.nix`
 
-{
-  # Store the GCP credentials securely
-  age.secrets.gcp-dns-credentials = {
-    file = ../../secrets/gcp-dns-credentials.age;
-    owner = "acme";
-    group = "acme";
-  };
+ACME is configured with:
+- Let's Encrypt with GCP DNS-01 challenge
+- Auto-renewal configured
+- StrongSwan reload on renewal
+- Email: **TODO - Update in config**
+- GCP Zone: **TODO - Update in config**
 
-  security.acme = {
-    acceptTerms = true;
-    defaults.email = "your-email@example.com";
+#### 4c. StrongSwan Certificate Paths ✅
 
-    certs."home.mingalev.net" = {
-      domain = "home.mingalev.net";
-      dnsProvider = "gcloud";
-      credentialFiles = {
-        GCE_SERVICE_ACCOUNT_FILE = config.age.secrets.gcp-dns-credentials.path;
-        GCE_PROJECT = "your-gcp-project-id";  # Or use credentialFiles for this too
-      };
-      # Reload StrongSwan when cert renews
-      reloadServices = [ "strongswan-swanctl" ];
-    };
-  };
+**Status:** Complete - Configured in `hosts/pi/strongswan.nix`
 
-  # Grant strongswan-swanctl access to certs
-  users.users.strongswan = {
-    extraGroups = [ "acme" ];
-  };
-}
-```
-
-#### 4c. StrongSwan Certificate Paths
-
-The ACME certs will be at:
+ACME certs will be at:
 - Cert: `/var/lib/acme/home.mingalev.net/cert.pem`
 - Key: `/var/lib/acme/home.mingalev.net/key.pem`
 - Chain: `/var/lib/acme/home.mingalev.net/chain.pem`
 - Full chain: `/var/lib/acme/home.mingalev.net/fullchain.pem`
 
-Update StrongSwan config to reference these:
-```nix
-services.strongswan-swanctl.swanctl = {
-  connections.ikev2-eap.local.main = {
-    auth = "pubkey";
-    certs = [ "/var/lib/acme/home.mingalev.net/fullchain.pem" ];
-    id = "home.mingalev.net";
-  };
+StrongSwan references these paths (already configured in `hosts/pi/strongswan.nix`).
 
-  # Private key for server authentication
-  secrets.private = {
-    server-key = {
-      file = "/var/lib/acme/home.mingalev.net/key.pem";
-    };
-  };
-};
-```
+#### 4d. Dynamic DNS Update (for external IP) ✅
 
-#### 4d. Dynamic DNS Update (for external IP)
+**Status:** Complete - Configured in `hosts/pi/strongswan.nix`
 
-Since your external IP changes, add a service to update the DNS record. Using `google-cloud-sdk`:
+Dynamic DNS update service configured:
 
 ```nix
 # In a separate module or same file
@@ -261,21 +336,17 @@ Since your external IP changes, add a service to update the DNS record. Using `g
 }
 ```
 
-### Step 5: Secrets Management
+### Step 5: Secrets Management ✅
 
-For EAP passwords, use `agenix` or `sops-nix` instead of plaintext:
-```nix
-# Example with agenix
-age.secrets.vpn-users = {
-  file = ../../secrets/vpn-users.age;
-};
+**Status:** NixOS config complete, need to create encrypted secret files
 
-services.strongswan-swanctl.swanctl.secrets = {
-  eap-user1 = {
-    id = "mingaleg";
-    secret = { file = config.age.secrets.vpn-users.path; };
-  };
-};
+Agenix configuration is complete in `hosts/pi/strongswan.nix`.
+
+**Manual action required:** Create the encrypted secret files:
+```bash
+cd secrets
+agenix -e vpn-users.age              # Enter your VPN password
+agenix -e gcp-dns-credentials.age    # Paste GCP service account JSON
 ```
 
 ---
@@ -351,18 +422,15 @@ Disconnect: `swanctl --terminate --child home`
 
 ---
 
-## Pi-hole Considerations
+## Pi-hole Considerations ✅
 
-VPN clients will use Pi-hole at `172.26.249.253` for DNS. Ensure:
+**Status:** Complete - Configured in `hosts/pi/strongswan.nix`
 
-1. Pi-hole listens on the right interface (should already work since it's the same IP)
-2. Firewall allows DNS from VPN subnet:
-```nix
-networking.firewall.interfaces."end0".allowedUDPPorts = [ 53 ];
-networking.firewall.interfaces."end0".allowedTCPPorts = [ 53 ];
-```
+VPN clients will use Pi-hole at `172.26.249.253` for DNS.
 
-Or if using a virtual interface for VPN, allow on that too.
+- ✅ Pi-hole already listens on the interface
+- ✅ Firewall rules added for DNS from VPN subnet (ports 53 TCP/UDP on end0)
+- ✅ VPN pool configured to push Pi-hole DNS to clients
 
 ---
 
@@ -396,44 +464,61 @@ Or if using a virtual interface for VPN, allow on that too.
 
 ---
 
-## Files to Create/Modify
+## Files Created/Modified
 
-| File | Action |
-|------|--------|
-| `hosts/pi/strongswan.nix` | Create - main StrongSwan config |
-| `hosts/pi/default.nix` | Modify - import strongswan.nix, add ip_forward |
-| `secrets/vpn-users.age` | Create - EAP credentials (agenix) |
-| `secrets/gcp-dns-credentials.age` | Create - GCP service account JSON (agenix) |
-| Google Cloud Console | Create service account with DNS Admin role |
-| Router admin panel | Configure - port forward + static route |
+| File | Status | Description |
+|------|--------|-------------|
+| `hosts/pi/strongswan.nix` | ✅ Created | Complete StrongSwan + ACME + DNS update config |
+| `hosts/pi/default.nix` | ✅ Modified | Added IP forwarding, agenix identity, strongswan import |
+| `flake.nix` | ✅ Modified | Added agenix input and module |
+| `secrets/secrets.nix` | ✅ Created | Agenix secrets definition |
+| `ssh-keys/agenix-hosts.pub` | ✅ Created | Public key (safe to commit) |
+| `ssh-keys/agenix-hosts` | ✅ Created | Private key (in .gitignore, BACKUP SECURELY!) |
+| `.gitignore` | ✅ Updated | Protects private key from commits |
+| `secrets/vpn-users.age` | ✅ Created | Encrypted VPN password |
+| `secrets/gcp-dns-credentials.age` | ✅ Created | Encrypted GCP service account JSON |
+| `modules/core-desktop/system-packages.nix` | ✅ Modified | Added agenix CLI tool |
+| Google Cloud Console | ✅ Done | Service account `acme-dns01` created |
+| Cloud DNS | ✅ Done | A record `home.mingalev.net` created |
+| Router admin panel | ✅ Done | Port forwarding + static route configured |
+| Pi: `/root/.ssh/agenix-hosts` | ✅ Deployed | Private key deployed to Pi |
 
-## Secrets Setup (agenix)
+## Secrets Setup (agenix) ✅
 
-If not already using agenix, add to flake.nix:
-```nix
-inputs.agenix.url = "github:ryantm/agenix";
+**Status:** Infrastructure complete, need to create encrypted files
 
-# In Pi modules:
-agenix.nixosModules.default
+### What's Been Done:
+- ✅ Added agenix to `flake.nix`
+- ✅ Added agenix module to Pi configuration
+- ✅ Created `secrets/secrets.nix` with key definitions
+- ✅ Generated global agenix host key pair (`ssh-keys/agenix-hosts{,.pub}`)
+- ✅ Configured agenix identity path in `hosts/pi/default.nix`
+
+### What You Need to Do:
+
+**1. Install agenix CLI (if not already installed):**
+```bash
+nix profile install github:ryantm/agenix
 ```
 
-Create `secrets/secrets.nix`:
-```nix
-let
-  pi = "ssh-ed25519 AAAA...";  # Pi's host key
-  mingaleg = "ssh-ed25519 AAAA...";  # Your user key
-in {
-  "vpn-users.age".publicKeys = [ pi mingaleg ];
-  "gcp-dns-credentials.age".publicKeys = [ pi mingaleg ];
-}
-```
-
-Encrypt secrets:
+**2. Create encrypted secret files:**
 ```bash
 cd secrets
-agenix -e vpn-users.age        # Enter EAP password
-agenix -e gcp-dns-credentials.age  # Paste GCP JSON key
+agenix -e vpn-users.age              # Enter VPN password for user 'mingaleg'
+agenix -e gcp-dns-credentials.age    # Paste entire GCP JSON key
 ```
+
+**3. Deploy private key to Pi:**
+```bash
+scp /home/mingaleg/nixos-config/ssh-keys/agenix-hosts mingaleg@pi:/tmp/
+# Then on Pi:
+sudo mkdir -p /root/.ssh
+sudo mv /tmp/agenix-hosts /root/.ssh/
+sudo chmod 600 /root/.ssh/agenix-hosts
+sudo chown root:root /root/.ssh/agenix-hosts
+```
+
+**IMPORTANT:** Backup `ssh-keys/agenix-hosts` securely (password manager, encrypted drive, etc.)
 
 ---
 

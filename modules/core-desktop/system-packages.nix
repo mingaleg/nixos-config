@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, agenix, ... }:
 
 {
   environment.systemPackages = with pkgs; [
@@ -9,6 +9,7 @@
 
     gh
     git
+    agenix.packages.${pkgs.system}.default
 
     python3
 
