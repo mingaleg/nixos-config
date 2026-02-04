@@ -105,6 +105,9 @@
 
   services.openssh.enable = true;
 
+  # Allow running unpatched binaries (e.g., VS Code Remote server)
+  programs.nix-ld.enable = true;
+
 
   # Give `nixos` group write permission in /etc/nixos
   system.activationScripts.nixos-permissions = pkgs.lib.stringAfter [ "groups" ] ''
