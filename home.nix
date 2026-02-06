@@ -43,6 +43,7 @@ in
     telegram-desktop
     slack
     google-cloud-sdk
+    qrencode
   ];
 
   # starship - a customizable prompt for any shell

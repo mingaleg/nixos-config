@@ -51,7 +51,17 @@
           publicKey = "WzQNq6q9JlWsTz7L1ejHHII1SFoHYhQAy/XNahwKClU=";
           allowedIPs = [ "10.100.0.10/32" ];
         }
-        # Add more clients as needed with IPs 10.100.0.11, .12, .13, etc.
+        {
+          # Igor
+          publicKey = "oOkMYPF/12FDQOPcCLWYrW+vCXkivl5LNzqax1U2YE8=";
+          allowedIPs = [ "10.100.0.11/32" ];
+        }
+        {
+          # Tanya
+          publicKey = "QV2Bdze5tUj5Q0JFU4FZeG6RE1G5EaGbx3jFaJCvElg=";
+          allowedIPs = [ "10.100.0.12/32" ];
+        }
+        # Add more clients as needed with IPs 10.100.0.13, .14, .15, etc.
       ];
 
       # Route client traffic to home network through Pi tunnel
