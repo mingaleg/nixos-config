@@ -56,11 +56,16 @@
     allowedTCPPorts = [ 22 ];
     allowedUDPPorts = [ 51820 51821 ];
 
-    # Allow forwarding between WireGuard interfaces
+    # Allow forwarding between WireGuard interfaces and to internet
     extraCommands = ''
+      # Forward between WireGuard interfaces (for home network access)
       iptables -A FORWARD -i wg-clients -o wg-pi -j ACCEPT
       iptables -A FORWARD -i wg-pi -o wg-clients -j ACCEPT
       iptables -t nat -A POSTROUTING -o wg-pi -j MASQUERADE
+
+      # NAT for wg-clients to internet (routes all traffic)
+      iptables -A FORWARD -i wg-clients -j ACCEPT
+      iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o eth0 -j MASQUERADE
     '';
   };
 

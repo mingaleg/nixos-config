@@ -26,7 +26,7 @@ in
             "10.200.0.1/32"    # VPS tunnel IP
             "10.100.0.0/24"    # VPN clients
           ];
-          endpoint = "home.mingalev.net:51821";
+          endpoint = "home-gw.mingalev.net:51821";
           persistentKeepalive = 25;
         }
       ];
