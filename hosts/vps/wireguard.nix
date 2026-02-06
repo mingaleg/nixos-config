@@ -61,7 +61,11 @@
           publicKey = "QV2Bdze5tUj5Q0JFU4FZeG6RE1G5EaGbx3jFaJCvElg=";
           allowedIPs = [ "10.100.0.12/32" ];
         }
-        # Add more clients as needed with IPs 10.100.0.13, .14, .15, etc.
+        {
+          # mingamini
+          publicKey = "TpXIsf+dtUrSj9zI9+yYs35C/k4lTmzJwbYaIIw9WBY=";
+          allowedIPs = [ "10.100.0.80/32" ];
+        }
       ];
 
       # Route client traffic to home network through Pi tunnel
