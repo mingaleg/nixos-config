@@ -100,6 +100,16 @@
             ./hosts/pi
           ];
         };
+
+        # GCP VPS - WireGuard relay
+        "vps" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = inputs;
+          modules = [
+            agenix.nixosModules.default
+            ./hosts/vps
+          ];
+        };
       };
 
       # SD image output

@@ -87,7 +87,7 @@
   };
 
   fileSystems."/mnt/pegasus" = {
-    device = "//172.26.249.101/pegasus";
+    device = "//pi/pegasus";
     fsType = "cifs";
     options = [
       "x-systemd.automount"

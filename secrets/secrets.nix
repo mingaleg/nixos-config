@@ -11,4 +11,8 @@ in
 
   # Google Cloud Platform DNS service account credentials (JSON key)
   "gcp-dns-credentials.age".publicKeys = [ mingaleg allHosts ];
+
+  # WireGuard VPN private keys
+  "wireguard-vps-private.age".publicKeys = [ mingaleg allHosts ];
+  "wireguard-pi-private.age".publicKeys = [ mingaleg allHosts ];
 }

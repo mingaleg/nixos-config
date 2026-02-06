@@ -42,6 +42,7 @@ in
     wireshark
     telegram-desktop
     slack
+    google-cloud-sdk
   ];
 
   # starship - a customizable prompt for any shell

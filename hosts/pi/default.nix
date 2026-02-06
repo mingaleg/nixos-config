@@ -9,7 +9,8 @@ in
   ] ++ [
     ./samba-server.nix
     ./pihole.nix
-    ./strongswan.nix
+    # ./strongswan.nix  # Disabled in favor of WireGuard-only VPN (kept for rollback)
+    ./wireguard-vpn.nix
   ];
 
   # Agenix configuration
@@ -51,7 +52,8 @@ in
     vim git htop tmux ntfs3g
     ethtool iproute2 pciutils usbutils
     iperf3 curl wget bind speedtest-cli
-    strongswan
+    # strongswan  # Disabled in favor of WireGuard (kept for rollback)
+    wireguard-tools
   ];
 
   boot.kernel.sysctl = {

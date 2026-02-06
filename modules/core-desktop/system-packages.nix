@@ -25,6 +25,7 @@
     # Network
     cifs-utils  # SMB/CIFS mounting
     samba       # SMB client tools (smbclient)
+    wireguard-tools
 
     acpi
     perl

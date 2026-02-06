@@ -73,57 +73,62 @@ VPN Client → VPS (WireGuard) → Pi (WireGuard) → Home Network
 
 ## Prerequisites
 
-- GCP account (you already have one)
-- Google Cloud SDK installed and authenticated
-- Your existing Pi configuration
-- SSH access to Pi
+- ✅ GCP account (you already have one)
+- ✅ Google Cloud SDK installed (added to home.nix)
+- ✅ WireGuard tools installed (added to modules/core-desktop/system-packages.nix)
+- ✅ Your existing Pi configuration
+- ✅ SSH access to Pi
+- ✅ StrongSwan disabled on Pi (commented out in hosts/pi/default.nix)
+
+---
+
+## Part 0: Reserve Static IP
+
+✅ **COMPLETED**
+
+Reserve a static IP address in GCP to ensure the VPS IP doesn't change:
+
+```bash
+gcloud compute addresses create vps-static-ip --region=europe-west2 --project=mingaleg
+```
+
+Get the IP address:
+```bash
+gcloud compute addresses describe vps-static-ip --region=europe-west2 --format='get(address)' --project=mingaleg
+```
+
+**Reserved IP: 34.39.81.90**
 
 ---
 
 ## Part 1: Build & Deploy NixOS VPS
 
-### 1. Download NixOS GCP Image
+### 1. Build NixOS GCE Image
 
-```bash
-cd /home/mingaleg/nixos-config
-curl -L https://nixos.org/channels/nixos-25.11/latest-nixos-gce.tar.gz -o nixos-gce.tar.gz
-```
+✅ **COMPLETED**
 
-### 2. Upload to Google Cloud Storage
+Built NixOS 25.11 GCE image using official nixpkgs script.
 
-```bash
-# Create bucket (if not exists)
-gsutil mb -p mingaleg -l europe-west2 gs://nixos-images-mingaleg || true
+**Image name:** `nixos-image-google-compute-25-11pre-git-x86-64-linux`
+**Status:** READY
+**Location:** `gs://nixos-images-mingaleg/nixos-image-google-compute-25.11pre-git-x86_64-linux.raw.tar.gz`
 
-# Upload image
-gsutil cp nixos-gce.tar.gz gs://nixos-images-mingaleg/
-```
+### 2. Create VPS Instance
 
-### 3. Create GCP Image
+✅ **COMPLETED**
 
-```bash
-gcloud compute images create nixos-25-11 \
-  --source-uri gs://nixos-images-mingaleg/nixos-gce.tar.gz \
-  --family nixos \
-  --description "NixOS 25.11 for GCE" \
-  --project mingaleg
-```
+Created VPS instance with static IP.
 
-### 4. Create VPS Instance
+**Instance:** `vps`
+**Zone:** `europe-west2-a`
+**IP:** `34.39.81.90`
+**Status:** RUNNING
 
-```bash
-gcloud compute instances create vps \
-  --zone=europe-west2-a \
-  --machine-type=e2-micro \
-  --image=nixos-25-11 \
-  --boot-disk-size=10GB \
-  --boot-disk-type=pd-standard \
-  --tags=wireguard-vps \
-  --metadata=ssh-keys="mingaleg:$(cat ssh-keys/mingaleg-masterkey.pub)" \
-  --project mingaleg
-```
+### 3. Create Firewall Rules
 
-### 5. Create Firewall Rules
+✅ **COMPLETED**
+
+Created all required firewall rules:
 
 ```bash
 # WireGuard VPN port
@@ -148,104 +153,77 @@ gcloud compute firewall-rules create wireguard-ssh \
   --project mingaleg
 ```
 
-### 6. Get VPS Public IP
+### 4. Verify VPS and Set IP Variable
 
 ```bash
-VPS_IP=$(gcloud compute instances describe vps \
+# Set the static IP as a variable for later use
+VPS_IP=34.39.81.90
+
+# Verify the VPS is running
+gcloud compute instances describe vps \
   --zone=europe-west2-a \
   --format='get(networkInterfaces[0].accessConfigs[0].natIP)' \
-  --project mingaleg)
-
-echo "VPS Public IP: $VPS_IP"
+  --project mingaleg
 ```
 
-Save this IP - you'll need it everywhere.
+Should output: `34.39.81.90`
 
 ---
 
 ## Part 2: Generate All WireGuard Keys
 
-### 1. Generate Keys for All Endpoints
+✅ **COMPLETED**
 
-```bash
-cd /home/mingaleg/nixos-config
+Generated WireGuard keys for:
+- VPS (server keys)
+- Pi (tunnel endpoint keys)
+- Pixel10 (client keys for testing)
 
-# VPS keys
-wg genkey | tee wireguard-vps-private | wg pubkey > wireguard-vps-public
+Keys stored in `tmp/` directory. Private keys encrypted with agenix and stored in `secrets/wireguard-vps-private.age` and `secrets/wireguard-pi-private.age`.
 
-# Pi keys
-wg genkey | tee wireguard-pi-private | wg pubkey > wireguard-pi-public
-
-# Client keys (generate one per device)
-wg genkey | tee wireguard-laptop-private | wg pubkey > wireguard-laptop-public
-wg genkey | tee wireguard-phone-private | wg pubkey > wireguard-phone-public
-
-# Display all keys
-echo "=== VPS Keys ==="
-echo "Private: $(cat wireguard-vps-private)"
-echo "Public:  $(cat wireguard-vps-public)"
-echo ""
-echo "=== Pi Keys ==="
-echo "Private: $(cat wireguard-pi-private)"
-echo "Public:  $(cat wireguard-pi-public)"
-echo ""
-echo "=== Laptop Keys ==="
-echo "Private: $(cat wireguard-laptop-private)"
-echo "Public:  $(cat wireguard-laptop-public)"
-echo ""
-echo "=== Phone Keys ==="
-echo "Private: $(cat wireguard-phone-private)"
-echo "Public:  $(cat wireguard-phone-public)"
-```
-
-### 2. Add Keys to Secrets
-
-Update `secrets/secrets.nix`:
-
-```nix
-let
-  mingaleg = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOdGlOYUp5OVA31vFPBYtMRZwbqFqFNOuv2JN3mwDZcc mingaleg@mingapred";
-  allHosts = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBIcZhxyhWjJzfD+i71YssKqUbwG+cAw/ZCrxLvuxmUM agenix-hosts";
-in
-{
-  "vpn-users.age".publicKeys = [ mingaleg allHosts ];
-  "gcp-dns-credentials.age".publicKeys = [ mingaleg allHosts ];
-  "wireguard-vps-private.age".publicKeys = [ mingaleg allHosts ];
-  "wireguard-pi-private.age".publicKeys = [ mingaleg allHosts ];
-}
-```
-
-### 3. Encrypt Private Keys
-
-```bash
-cd secrets
-
-# VPS private key
-cat ../wireguard-vps-private | EDITOR="tee" agenix -e wireguard-vps-private.age -i ../ssh-keys/agenix-hosts
-
-# Pi private key
-cat ../wireguard-pi-private | EDITOR="tee" agenix -e wireguard-pi-private.age -i ../ssh-keys/agenix-hosts
-
-# Clean up unencrypted private keys
-cd ..
-rm wireguard-*-private
-
-# Keep public keys for reference
-mkdir -p wireguard-keys
-mv wireguard-*-public wireguard-keys/
-```
+Updated `secrets/secrets.nix` to include WireGuard key entries.
 
 ---
 
 ## Part 3: Configure VPS
 
-### 1. Create VPS Configuration Directory
+✅ **COMPLETED**
 
-```bash
-mkdir -p hosts/vps
-```
+Created configuration files:
+- `hosts/vps/default.nix` - Main VPS configuration
+- `hosts/vps/wireguard.nix` - WireGuard configuration with two interfaces:
+  - `wg-pi` (port 51821) - Tunnel to Pi
+  - `wg-clients` (port 51820) - VPN for clients
 
-### 2. Create `hosts/vps/default.nix`
+---
+
+## Part 4: Configure Pi
+
+✅ **COMPLETED**
+
+Created `hosts/pi/wireguard-vpn.nix` with WireGuard configuration:
+- Interface `wg0` (port 51821) - Connects to VPS
+- Added to `hosts/pi/default.nix` imports
+
+---
+
+## Part 5: Add to Flake and Test Build
+
+✅ **COMPLETED**
+
+Added VPS configuration to `flake.nix`.
+
+Tested local builds:
+- ✅ VPS config builds successfully
+- ✅ Pi config builds successfully
+
+---
+
+## Part 6: Deploy to VPS
+
+### 1. Deploy Agenix Host Key
+
+First, deploy the agenix host key so the VPS can decrypt secrets:
 
 ```nix
 { config, pkgs, lib, ... }:
