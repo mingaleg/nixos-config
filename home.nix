@@ -44,6 +44,7 @@ in
     slack
     google-cloud-sdk
     qrencode
+    transmission_4-gtk
   ];
 
   # starship - a customizable prompt for any shell
@@ -117,6 +118,11 @@ in
       };
       "home-identity" = {
         host = "*.${layout.domain}";
+        identityFile = "~/.ssh/mingaleg-masterkey";
+        identitiesOnly = true;
+      };
+      "home-gw" = {
+        hostname = "home-gw.mingalev.net";
         identityFile = "~/.ssh/mingaleg-masterkey";
         identitiesOnly = true;
       };

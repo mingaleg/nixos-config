@@ -57,6 +57,7 @@
           system = "x86_64-linux";
           specialArgs = inputs;
           modules = [
+            agenix.nixosModules.default
             ./hosts/mingamini
             home-manager.nixosModules.home-manager
             {

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+ip a l wg-home >/dev/null 2>/dev/null
+if [ $? -eq 0 ] 
+then
+    echo "WG: Home"
+    echo "WG: Home"
+    echo "#00FF00"
+    # CLICK_CMD="nordvpn disconnect"
+else
+    echo "WG"
+    echo "WG"
+    echo "#888888"
+    # CLICK_CMD="/home/mingaleg/bin/nordvpn-rofi"
+fi
+
+# # Left click
+# if [[ "${BLOCK_BUTTON}" -eq 1 ]]; then
+#     $CLICK_CMD
+# fi
+
+# # Right click
+# if [[ "${BLOCK_BUTTON}" -eq 3 ]]; then
+#     nordvpn status | tail -c +13 | zenity --text-info --width=500 --height=300 --title="NordVPN :: Status" --font=monospace
+# fi
+
+exit 0

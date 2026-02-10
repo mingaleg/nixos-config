@@ -49,6 +49,9 @@ interval=10
 [nordvpn]
 interval=1
 
+[wg-home]
+interval=1
+
 [battery]
 label=BAT 
 interval=30
