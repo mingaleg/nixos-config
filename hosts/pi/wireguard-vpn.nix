@@ -48,4 +48,7 @@ in
 
   # Open WireGuard port
   networking.firewall.allowedUDPPorts = [ 51821 ];
+
+  # Trust VPN clients coming through wg0 (allows DNS and other services)
+  networking.firewall.trustedInterfaces = [ "wg0" ];
 }

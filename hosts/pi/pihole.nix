@@ -29,6 +29,7 @@ in
 
     settings = {
       dns = {
+        listeningMode = "all";
         upstreams = [
           "1.1.1.1"
           "1.0.0.1"

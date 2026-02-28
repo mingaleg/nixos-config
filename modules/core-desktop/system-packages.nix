@@ -21,6 +21,7 @@
     tmux
     vim
     wget
+    bat
 
     # Network
     cifs-utils  # SMB/CIFS mounting

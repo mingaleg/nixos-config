@@ -9,6 +9,9 @@ let
   wireguardSecrets = import ./wireguard.nix;
 in
 wireguardSecrets // {
+  # Murmur (Mumble server) environment: MURMUR_SERVER_PASSWORD and MURMUR_SUPW
+  "murmur-env.age".publicKeys = [ mingaleg allHosts ];
+
   # VPN user credentials (EAP-MSCHAPv2 passwords)
   "vpn-users.age".publicKeys = [ mingaleg allHosts ];
 

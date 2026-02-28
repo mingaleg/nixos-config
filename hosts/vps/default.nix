@@ -4,6 +4,7 @@
   imports = [
     "${modulesPath}/virtualisation/google-compute-image.nix"
     ./wireguard.nix
+    ./murmur.nix
   ];
 
   networking.hostName = "vps";
@@ -61,7 +62,6 @@
       # Forward between WireGuard interfaces (for home network access)
       iptables -A FORWARD -i wg-clients -o wg-pi -j ACCEPT
       iptables -A FORWARD -i wg-pi -o wg-clients -j ACCEPT
-      iptables -t nat -A POSTROUTING -o wg-pi -j MASQUERADE
 
       # NAT for wg-clients to internet (routes all traffic)
       iptables -A FORWARD -i wg-clients -j ACCEPT

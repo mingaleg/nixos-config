@@ -12,7 +12,7 @@
         "server string" = "Pi Storage";
         "netbios name" = "pi";
         security = "user";
-        "hosts allow" = "192.168.0.0/16 172.26.0.0/16";
+        "hosts allow" = "192.168.0.0/16 172.26.0.0/16 10.100.0.0/24 10.200.0.0/24";
         "hosts deny" = "0.0.0.0/0";
         "guest account" = "nobody";
         "map to guest" = "bad user";
