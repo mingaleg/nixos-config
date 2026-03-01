@@ -38,7 +38,21 @@ in
   networking.nameservers = [ "127.0.0.1" "1.1.1.1" ];  # Use itself for DNS
   
   services.openssh.enable = true;
-  
+
+  # NTP server for the local network
+  services.chrony = {
+    enable = true;
+    servers = [
+      "0.nixos.pool.ntp.org"
+      "1.nixos.pool.ntp.org"
+    ];
+    extraConfig = ''
+      allow ${layout.network.prefix}.0/24
+      local stratum 10
+    '';
+  };
+  networking.firewall.allowedUDPPorts = [ 123 ];
+
   users.users.mingaleg = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
