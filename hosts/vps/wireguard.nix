@@ -15,6 +15,7 @@
       ips = [ "10.200.0.1/24" ];
       listenPort = 51821;
       privateKeyFile = config.age.secrets.wireguard-vps-private.path;
+      mtu = 1380;
 
       peers = [
         {
