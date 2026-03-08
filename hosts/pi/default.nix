@@ -11,6 +11,7 @@ in
     ./pihole.nix
     # ./strongswan.nix  # Disabled in favor of WireGuard-only VPN (kept for rollback)
     ./wireguard-vpn.nix
+    ./nginx-www.nix
   ];
 
   # Agenix configuration
