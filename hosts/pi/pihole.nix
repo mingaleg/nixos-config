@@ -55,6 +55,10 @@ in
         dnsmasq_lines = [
           "local=/${layout.domain}/"
           "domain=${layout.domain}"  # Send domain to DHCP clients
+
+          # IPv6 Router Advertisement - fixes missing on-link flag from Linksys
+          "enable-ra"
+          "ra-param=end0,0,0"  # interface, mtu (0=default), router-lifetime (0=not a default gateway)
         ];
       };
       dhcp = {
