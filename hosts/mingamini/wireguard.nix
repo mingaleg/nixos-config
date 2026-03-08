@@ -20,7 +20,7 @@
         {
           # VPS
           publicKey = "TnZpPk/diUblm/aQG/dm9yqFPCnfjQrZ/g5xwoAcChU=";
-          allowedIPs = [ "172.26.249.0/24" ];
+          allowedIPs = [ "10.100.0.0/24" "172.26.249.0/24" ];
           endpoint = "home-gw.mingalev.net:51820";
           persistentKeepalive = 25;
         }

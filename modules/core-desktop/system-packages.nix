@@ -28,6 +28,9 @@
     samba       # SMB client tools (smbclient)
     wireguard-tools
 
+    # VoIP
+    mumble
+
     acpi
     perl
 

@@ -9,6 +9,7 @@
     [
       ./hardware-configuration.nix
       ./wireguard.nix
+      ./mumble.nix
       ../../modules/core-desktop
     ];
 
@@ -66,6 +67,17 @@
 
   # Enable sound with pipewire.
   security.rtkit.enable = true;
+
+  # Increase rttime limit for Mumble and other realtime audio apps
+  # Default is 200000 (200ms), which is too low for VoIP applications
+  # See: https://github.com/mumble-voip/mumble/issues/6780
+  systemd.services.rtkit-daemon.serviceConfig.ExecStart = let
+    realtimeLimitUS = 5000000;  # 5 seconds
+  in [
+    ""  # Clear the default ExecStart
+    "${pkgs.rtkit}/libexec/rtkit-daemon --rttime-usec-max=${builtins.toString realtimeLimitUS}"
+  ];
+
   services.pipewire = {
     enable = true;
     alsa.enable = true;

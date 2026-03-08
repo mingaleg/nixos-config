@@ -21,7 +21,7 @@
   # Set the SuperUser (admin) password on every start, after the ini file is written
   systemd.services.murmur.preStart = lib.mkAfter ''
     ${config.services.murmur.package}/bin/mumble-server \
-      -supw "$MURMUR_SUPW" \
-      -ini /run/murmur/murmurd.ini
+      -ini /run/murmur/murmurd.ini \
+      -supw "$MURMUR_SUPW"
   '';
 }
