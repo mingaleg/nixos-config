@@ -54,8 +54,8 @@
   # Firewall
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = lib.mkDefault [ 22 ];
-    allowedUDPPorts = lib.mkDefault [ 51820 51821 ];
+    allowedTCPPorts = [ 22 ];
+    allowedUDPPorts = [ 51820 51821 ];
 
     # Allow forwarding between WireGuard interfaces and to internet
     extraCommands = ''

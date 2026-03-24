@@ -120,6 +120,7 @@ in
         host = "*.${layout.domain}";
         identityFile = "~/.ssh/mingaleg-masterkey";
         identitiesOnly = true;
+        addressFamily = "inet";
       };
       "home-gw" = {
         hostname = "home-gw.mingalev.net";

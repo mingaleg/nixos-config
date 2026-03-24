@@ -32,10 +32,18 @@
       # Fix the route to use Pi as gateway
       postSetup = ''
         ${pkgs.iproute2}/bin/ip route replace 172.26.249.0/24 via 10.200.0.2 dev wg-pi
+
+        # Clamp MSS for TCP packets traversing the 1380 MTU tunnel
+        ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -o wg-pi -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+        ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -i wg-pi -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
       '';
 
       postShutdown = ''
         ${pkgs.iproute2}/bin/ip route del 172.26.249.0/24 via 10.200.0.2 dev wg-pi || true
+
+        # Remove MSS clamping rules
+        ${pkgs.iptables}/bin/iptables -t mangle -D FORWARD -o wg-pi -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu || true
+        ${pkgs.iptables}/bin/iptables -t mangle -D FORWARD -i wg-pi -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu || true
       '';
     };
 
@@ -44,6 +52,7 @@
       ips = [ "10.100.0.1/24" ];
       listenPort = 51820;
       privateKeyFile = config.age.secrets.wireguard-vps-private.path;
+      mtu = 1380;
 
       # Clients will be added here
       peers = [

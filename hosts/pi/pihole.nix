@@ -59,6 +59,10 @@ in
           # IPv6 Router Advertisement - fixes missing on-link flag from Linksys
           "enable-ra"
           "ra-param=end0,0,0"  # interface, mtu (0=default), router-lifetime (0=not a default gateway)
+
+          # Filter all AAAA records to avoid IPv6 MTU issues on direct path
+          # IPv6 DHCP/SLAAC and router advertisements still work for local connectivity
+          "filter-AAAA"
         ];
       };
       dhcp = {

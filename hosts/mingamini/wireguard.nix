@@ -15,6 +15,7 @@
       address = [ "10.100.0.80/24" ];
       privateKeyFile = config.age.secrets.wireguard-mingamini.path;
       dns = [ "172.26.249.253" ];
+      mtu = 1380;
 
       peers = [
         {
