@@ -35,6 +35,14 @@ in
       prefixLength = layout.network.prefixLength;
     }];
   };
+  # HiLink modem interface - static IP to access modem API at 192.168.8.1
+  # No gateway set, so internet traffic stays on end0
+  networking.interfaces.enu2 = {
+    ipv4.addresses = [{
+      address = "192.168.8.100";
+      prefixLength = 24;
+    }];
+  };
   networking.defaultGateway = layout.network.defaultGateway;
   networking.nameservers = [ "127.0.0.1" "1.1.1.1" ];  # Use itself for DNS
   
