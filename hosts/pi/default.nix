@@ -45,7 +45,19 @@ in
   };
   networking.defaultGateway = layout.network.defaultGateway;
   networking.nameservers = [ "127.0.0.1" "1.1.1.1" ];  # Use itself for DNS
-  
+
+  # Allow forwarding to modem interface
+  networking.firewall.trustedInterfaces = [ "enu2" ];
+
+  # NAT for modem access - masquerade traffic going to modem
+  # so modem sees requests from Pi's IP (192.168.8.100) instead of client IPs
+  # Includes both local network (end0) and VPN clients (wg0)
+  networking.nat = {
+    enable = true;
+    externalInterface = "enu2";
+    internalInterfaces = [ "end0" "wg0" ];
+  };
+
   services.openssh.enable = true;
 
   # NTP server for the local network

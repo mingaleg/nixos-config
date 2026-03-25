@@ -53,6 +53,12 @@ let
       ip = ip 254;
       mac = "80:69:1a:d7:62:fc";
     };
+
+    # This one is special -- it lives in its own network shared with pi
+    # Does not need DHCP, but we still define the host for DNS.
+    modem = {
+      ip = "192.168.8.1";
+    };
   };
 
 in {

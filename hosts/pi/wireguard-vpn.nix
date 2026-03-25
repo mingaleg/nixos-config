@@ -32,17 +32,27 @@ in
         }
       ];
 
-      # NAT for VPN clients accessing home network
+      # NAT for VPN clients accessing home network and modem
       postSetup = ''
         ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o end0 -j MASQUERADE
         ${pkgs.iptables}/bin/iptables -A FORWARD -i wg0 -o end0 -j ACCEPT
         ${pkgs.iptables}/bin/iptables -A FORWARD -i end0 -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+        # NAT for all WireGuard traffic (VPS + VPN clients) accessing modem
+        ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -o enu2 -j MASQUERADE
+        ${pkgs.iptables}/bin/iptables -A FORWARD -i wg0 -o enu2 -j ACCEPT
+        ${pkgs.iptables}/bin/iptables -A FORWARD -i enu2 -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
       '';
 
       postShutdown = ''
         ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s 10.100.0.0/24 -o end0 -j MASQUERADE || true
         ${pkgs.iptables}/bin/iptables -D FORWARD -i wg0 -o end0 -j ACCEPT || true
         ${pkgs.iptables}/bin/iptables -D FORWARD -i end0 -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT || true
+
+        # Remove modem NAT rules
+        ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -o enu2 -j MASQUERADE || true
+        ${pkgs.iptables}/bin/iptables -D FORWARD -i wg0 -o enu2 -j ACCEPT || true
+        ${pkgs.iptables}/bin/iptables -D FORWARD -i enu2 -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT || true
       '';
     };
   };

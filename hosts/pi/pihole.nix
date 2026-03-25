@@ -63,6 +63,11 @@ in
           # Filter all AAAA records to avoid IPv6 MTU issues on direct path
           # IPv6 DHCP/SLAAC and router advertisements still work for local connectivity
           "filter-AAAA"
+
+          # Classless Static Routes (option 121)
+          # When option 121 is present, it overrides the default gateway (option 3)
+          # Include: default route, VPN networks, VPN subnet, and modem network
+          "dhcp-option=option:classless-static-route,0.0.0.0/0,172.26.249.254,10.200.0.0/24,172.26.249.253,10.100.0.0/24,172.26.249.253,172.26.249.160/28,172.26.249.253,192.168.8.0/24,172.26.249.253"
         ];
       };
       dhcp = {
