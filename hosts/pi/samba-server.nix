@@ -16,6 +16,16 @@
         "hosts deny" = "0.0.0.0/0";
         "guest account" = "nobody";
         "map to guest" = "bad user";
+
+        # Performance tuning
+        "socket options" = "TCP_NODELAY IPTOS_LOWDELAY SO_RCVBUF=131072 SO_SNDBUF=131072";
+        "read raw" = "yes";
+        "write raw" = "yes";
+        "aio read size" = "1";
+        "aio write size" = "1";
+        "strict locking" = "no";
+        "kernel oplocks" = "no";
+        "server min protocol" = "SMB3";
       };
 
       pegasus = {

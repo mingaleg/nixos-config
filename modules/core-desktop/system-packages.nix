@@ -37,6 +37,7 @@
     picom
 
     gnumake
+    gcc
 
     texlive.combined.scheme-full
     imagemagick

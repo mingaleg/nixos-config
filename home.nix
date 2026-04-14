@@ -45,6 +45,7 @@ in
     google-cloud-sdk
     qrencode
     transmission_4-gtk
+    graphviz
   ];
 
   # starship - a customizable prompt for any shell
@@ -97,6 +98,10 @@ in
         "terminal.integrated.gpuAcceleration" = "off";
       };
     };
+  };
+
+  programs.opam = {
+    enable = true;
   };
 
   home.sessionVariables = {
