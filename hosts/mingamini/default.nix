@@ -17,6 +17,10 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Rotate the display 90° clockwise at the kernel level (framebuffer console + KMS/plymouth)
+  # Note: systemd-boot itself (UEFI app) rotation depends on firmware support
+  boot.kernelParams = [ "fbcon=rotate:1" "video=DSI-1:rotate=90" ];
+
   networking.hostName = "mingamini";
 
   # Enable Intel graphics drivers and hardware acceleration
@@ -41,7 +45,11 @@
   '';
 
   # Enable wifi support with iwd (provides iwctl)
-  networking.wireless.iwd.enable = true;
+  # Disable power saving to avoid throughput throttling (AX210 is capable of multi-gigabit)
+  networking.wireless.iwd = {
+    enable = true;
+    settings.General.ManagePowerSave = false;
+  };
 
   # Rotate display to the right at X server level
   services.xserver.xrandrHeads = [
@@ -86,6 +94,17 @@
   };
 
   networking.firewall.enable = false;
+
+  # Allow user-space FUSE mounts (needed for rclone)
+  programs.fuse.userAllowOther = true;
+
+  # Setuid wrapper so unprivileged users can mount FUSE filesystems
+  security.wrappers.fusermount3 = {
+    source = "${pkgs.fuse3}/bin/fusermount3";
+    setuid = true;
+    owner = "root";
+    group = "root";
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

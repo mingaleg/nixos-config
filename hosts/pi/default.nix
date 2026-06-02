@@ -20,13 +20,13 @@ in
   networking.hostName = "pi";
   
   nix.settings.trusted-users = [ "root" "mingaleg" ];
-  
+
   fileSystems."/mnt/pegasus" = {
-    device = "/dev/disk/by-uuid/B66C1D7C6C1D3897";
-    fsType = "ntfs-3g";
-    options = [ "defaults" "nofail" "uid=1000" "gid=100" "dmask=022" "fmask=133" ];
+    device = "/dev/disk/by-uuid/0fd7125c-e77f-4a65-8e3d-984ecb96cadc";
+    fsType = "ext4";
+    options = [ "defaults" "nofail" ];
   };
-  
+
   # Static IP for the DHCP/DNS server
   networking.useDHCP = false;
   networking.interfaces.end0 = {
@@ -204,6 +204,15 @@ in
   boot.loader.raspberry-pi.bootloader = "kernel";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
+  nix.settings.auto-optimise-store = true;
+
+  security.sudo.wheelNeedsPassword = false;
+
   time.timeZone = "Europe/London";
   system.stateVersion = "25.11";
 }
