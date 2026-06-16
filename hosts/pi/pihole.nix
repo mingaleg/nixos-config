@@ -3,15 +3,19 @@
 let
   layout = import ../../home-network/layout.nix;
 
-  # Generate DNS host entries: "IP FQDN shortname"
-  dnsHosts = lib.mapAttrsToList (name: m:
-    "${m.ip} ${name}.${layout.domain} ${name}"
-  ) layout.machines;
+  # Generate DNS host entries: "IP FQDN shortname" (one entry per interface)
+  dnsHosts = lib.concatLists (lib.mapAttrsToList (name: m:
+    lib.mapAttrsToList (_ifaceName: iface:
+      "${iface.ip} ${name}.${layout.domain} ${name}"
+    ) m.interfaces
+  ) layout.machines);
 
-  # Generate DHCP static leases for machines with MAC addresses: "MAC,IP,hostname"
-  dhcpHosts = lib.mapAttrsToList (name: m:
-    "${m.mac},${m.ip},${name}"
-  ) (lib.filterAttrs (_: m: m ? mac) layout.machines);
+  # Generate DHCP static leases for all interfaces with MAC addresses: "MAC,IP,hostname"
+  dhcpHosts = lib.concatLists (lib.mapAttrsToList (name: m:
+    lib.mapAttrsToList (_ifaceName: iface:
+      "${iface.mac},${iface.ip},${name}"
+    ) (lib.filterAttrs (_: iface: iface ? mac) m.interfaces)
+  ) layout.machines);
 in
 {
   services.pihole-web = {

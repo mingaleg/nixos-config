@@ -18,46 +18,70 @@ let
 
   machines = {
     mingapred = {
-      ip = ip 1;
-      mac = "28:d0:ea:c9:d0:a1";
+      interfaces = {
+        wlan = {
+          ip = ip 1;
+          mac = "28:d0:ea:c9:d0:a1";
+        };
+        eth = { # usb dongle
+          ip = ip 2;
+          mac = "6c:1f:f7:19:86:5d";
+        };
+      };
     };
 
     mingamac = {
-      ip = ip 10;
-      mac = "f4:5c:89:8a:82:8f";
+      interfaces.wlan = {
+        ip = ip 10;
+        mac = "f4:5c:89:8a:82:8f";
+      };
     };
     mingamini = {
-      ip = ip 11;
-      mac = "f4:7b:09:f7:f0:1c";
+      interfaces.wlan = {
+        ip = ip 11;
+        mac = "f4:7b:09:f7:f0:1c";
+      };
     };
 
     pixel10 = {
-      ip = ip 50;
-      mac = "b0:d5:fb:b7:b9:22";
+      interfaces.wlan = {
+        ip = ip 50;
+        mac = "b0:d5:fb:b7:b9:22";
+      };
     };
 
     chromecast-ultra = {
-      ip = ip 159;
-      mac = "00:f6:20:79:3d:4f";
+      interfaces.wlan = {
+        ip = ip 159;
+        mac = "00:f6:20:79:3d:4f";
+      };
     };
 
     keenetic = {
-      ip = ip 252;
-      mac = "e4:18:6b:28:a0:70";
+      interfaces.eth = {
+        ip = ip 252;
+        mac = "e4:18:6b:28:a0:70";
+      };
     };
     pi = {
-      ip = ip 253;
-      mac = "2c:cf:67:cc:55:39";
+      interfaces.eth = {
+        ip = ip 253;
+        mac = "2c:cf:67:cc:55:39";
+      };
     };
     linksys = {
-      ip = ip 254;
-      mac = "80:69:1a:d7:62:fc";
+      interfaces.eth = {
+        ip = ip 254;
+        mac = "80:69:1a:d7:62:fc";
+      };
     };
 
     # This one is special -- it lives in its own network shared with pi
     # Does not need DHCP, but we still define the host for DNS.
     modem = {
-      ip = "192.168.8.1";
+      interfaces.usb = {
+        ip = "192.168.8.1";
+      };
     };
   };
 

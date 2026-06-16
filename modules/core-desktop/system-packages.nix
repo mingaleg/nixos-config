@@ -15,7 +15,7 @@
 
     nixpkgs-fmt
 
-    htop
+    btop
     tldr
     tree
     tmux

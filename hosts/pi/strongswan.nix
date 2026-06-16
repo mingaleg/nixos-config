@@ -79,7 +79,7 @@ in
       pools = {
         vpn-pool = {
           addrs = "172.26.249.161-172.26.249.174";
-          dns = [ layout.machines.pi.ip ];  # Pi-hole
+          dns = [ layout.machines.pi.interfaces.eth.ip ];  # Pi-hole
         };
       };
 

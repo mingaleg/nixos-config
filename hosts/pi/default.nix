@@ -31,7 +31,7 @@ in
   networking.useDHCP = false;
   networking.interfaces.end0 = {
     ipv4.addresses = [{
-      address = layout.machines.pi.ip;
+      address = layout.machines.pi.interfaces.eth.ip;
       prefixLength = layout.network.prefixLength;
     }];
   };
