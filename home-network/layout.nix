@@ -1,8 +1,10 @@
 let
   domain = "home.mingalev.net";
   networkPrefix = "172.26.249";
+  vpnNetworkPrefix = "10.100.0";
 
   ip = suffix: "${networkPrefix}.${toString suffix}";
+  vpnIp = suffix: "${vpnNetworkPrefix}.${toString suffix}";
 
   network = {
     prefix = networkPrefix;
@@ -41,6 +43,11 @@ let
         ip = ip 11;
         mac = "f4:7b:09:f7:f0:1c";
       };
+      interfaces.eth = {
+        ip = ip 12;
+        mac = "06:e0:4c:6a:00:04";
+      };
+      interfaces.vpn.ip = vpnIp 80;
     };
 
     pixel10 = {

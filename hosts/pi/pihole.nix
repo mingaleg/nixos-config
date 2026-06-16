@@ -43,6 +43,7 @@ in
         expandHosts = true;
         domain.name = layout.domain;
         domain.local = true;  # Don't forward queries for this domain upstream
+        localise = false;
         hosts = dnsHosts;
       };
       webserver = {
