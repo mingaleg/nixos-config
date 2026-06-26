@@ -104,6 +104,17 @@
     ];
   };
 
+  # Dunst notification daemon as a user service
+  systemd.user.services.dunst = {
+    description = "Dunst notification daemon";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.dunst}/bin/dunst";
+      Restart = "on-failure";
+    };
+  };
+
   services.openssh.enable = true;
 
   # Allow running unpatched binaries (e.g., VS Code Remote server)

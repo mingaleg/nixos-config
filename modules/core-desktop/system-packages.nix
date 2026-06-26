@@ -35,6 +35,8 @@
     perl
 
     picom
+    dunst
+    libnotify
 
     gnumake
     gcc
