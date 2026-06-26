@@ -250,6 +250,7 @@ bar {
 # Remove titlebars
 for_window [class="Gnome-terminal"] border pixel 1
 for_window [class="kitty"] border pixel 1
+for_window [class="ghostty"] border pixel 1
 for_window [class="Slack"] border pixel 1
 for_window [class="Google-chrome"] border none
 

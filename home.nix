@@ -46,6 +46,7 @@ in
     qrencode
     transmission_4-gtk
     graphviz
+    ghostty
   ];
 
   # starship - a customizable prompt for any shell
@@ -106,7 +107,7 @@ in
 
   home.sessionVariables = {
     EDITOR = "vim";
-    TERMINAL = "alacritty";
+    TERMINAL = "ghostty";
   };
 
   programs.ssh = {
@@ -152,6 +153,10 @@ in
       recursive = true;
     };
     ".config/picom/picom.conf".source = ./etc/picom/picom.conf;
+    ".config/ghostty/config.ghostty".text = ''
+      theme = Broadcast
+      window-decoration = none
+    '';
   };
 
   home.stateVersion = "25.11";
