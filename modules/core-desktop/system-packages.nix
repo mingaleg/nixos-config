@@ -23,7 +23,7 @@
     wget
     bat
     yazi
-    poppler_utils  # PDF preview in yazi
+    poppler-utils  # PDF preview in yazi
 
     # Network
     cifs-utils  # SMB/CIFS mounting
