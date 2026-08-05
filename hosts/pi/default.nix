@@ -17,6 +17,11 @@ in
   # Agenix configuration
   age.identityPaths = [ "/root/.ssh/agenix-hosts" ];
 
+  # Mount pegasus by IP: pi is itself the DNS server, and its
+  # systemd-resolved setup doesn't reliably resolve local hostnames back
+  # through its own pihole, so avoid that self-dependency here.
+  pegasusMount.host = layout.machines.ronove.interfaces.eth.ip;
+
   networking.hostName = "pi";
   
   nix.settings.trusted-users = [ "root" "mingaleg" ];
