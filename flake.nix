@@ -45,14 +45,6 @@
     in
     {
       nixosConfigurations = {
-        "minganix" = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = inputs;
-          modules = [
-            ./hosts/minganix
-          ] ++ home-manager-modules;
-        };
-
         "mingamini" = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = inputs;
