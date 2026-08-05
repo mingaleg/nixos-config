@@ -39,22 +39,42 @@ Stage 1 status: done
 - Desktop clients (`minganix`, `mingamini` - both use `core-desktop`) repointed their CIFS
   mount from `//pi/pegasus` to `//ronove/pegasus`. Verified working.
 
-Remaining steps (Stage 2+)
+Stage 2 status: done
 ===
 
-### 1. Decommission pi's now-redundant static-file roles
+- CIFS mount factored out of `core-desktop` into a shared `modules/pegasus-mount.nix`
+  (device, credentials, `cache=loose`, etc.), used by both `core-desktop` and `pi`. Exposes
+  a `pegasusMount.host` option (default `"ronove"`) so individual hosts can override how
+  they address the share.
+- `pi`'s now-redundant static-file roles decommissioned: `samba-server.nix` deleted (`pi` is
+  no longer a Samba server - `ronove` is), and the stale local `fileSystems."/mnt/pegasus"`
+  ext4 entry removed (that disk physically moved to `ronove` in Stage 1, so the UUID no
+  longer existed on `pi`). `pi`'s `nginx-www.nix` was kept and now serves `/mnt/pegasus/www`
+  over the same CIFS mount as everyone else.
+- `ronove`'s `samba-server.nix` performance tuning cleaned up: dropped a stale 128KB
+  `SO_RCVBUF`/`SO_SNDBUF` socket-options cap and SMB1-era `read raw`/`write raw`/`aio *`
+  settings (dead weight under `server min protocol = SMB3`), and disabled SMB signing
+  (LAN/VPN-only, signing overhead not needed). Confirmed CIFS throughput now rides the
+  network ceiling on both WiFi (mingamini, ~43->~70 MB/s) and gigabit Ethernet (pi, ~115
+  MB/s, matching iperf3's ~940 Mbit/s raw ceiling).
+- `smb-credentials-pegasus` moved from a manually-placed `/etc/nixos/smb-credentials-pegasus`
+  file to an agenix secret (`secrets/smb-credentials-pegasus.age`), decrypted to
+  `config.age.secrets.smb-credentials-pegasus.path` at activation. Encrypted directly on
+  `mingamini` from its existing in-use credentials file, without the plaintext passing
+  through the assistant.
+- Fixed a `pi`-specific mount failure (`mount error: could not resolve address for ronove`):
+  `pi` is itself the DNS server, and `systemd-resolved` there didn't reliably route
+  unqualified-hostname lookups back through its own Pi-hole (global "Current DNS Server" was
+  landing on `1.1.1.1`, which has no idea about local hosts). Fixed by overriding
+  `pegasusMount.host` to `layout.machines.ronove.interfaces.eth.ip` on `pi` only, rather than
+  depending on its own DNS resolution for this mount.
+- `minganix` host removed entirely (unused) rather than wired into agenix, since it was the
+  only `core-desktop` consumer without an agenix identity configured.
 
-`pi` still has `nginx-www.nix`, `samba-server.nix`, and a `fileSystems."/mnt/pegasus"` entry
-pointing at a disk that is no longer physically attached (mitigated by the `nofail` mount
-option, so it fails silently rather than blocking boot). Low-risk cleanup, no coordination
-with router/vps needed:
+Remaining steps (Stage 3+)
+===
 
-- Remove the `samba-server.nix` / `nginx-www.nix` imports and the stale `/mnt/pegasus`
-  `fileSystems` entry from `hosts/pi/default.nix`.
-- Double check nothing else on the LAN still points at `pi` for these (bookmarks, other
-  fstabs) before actually pulling the imports.
-
-### 2. Network-related services still on pi (deferred by design)
+### 1. Network-related services still on pi (deferred by design)
 
 These all stay on `pi` for now. Moving each has different blast radius and different
 external dependencies:
@@ -91,7 +111,7 @@ external dependencies:
 - **`strongswan.nix`** (already disabled, kept for rollback) - delete once confident the
   WireGuard-only VPN has been stable for a while. No coordination needed.
 
-### 3. Final pi decommission
+### 2. Final pi decommission
 
 Once Pi-hole and (if ever) the VPN/NAT/modem role have moved off, `pi` can be powered down.
 Until then it remains the home network's DNS/DHCP/VPN/NAT appliance - do not remove those
