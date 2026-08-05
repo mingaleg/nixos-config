@@ -111,6 +111,16 @@
             ./hosts/vps
           ];
         };
+
+        # Home server - replacing pi's non-network services
+        "ronove" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = inputs;
+          modules = [
+            agenix.nixosModules.default
+            ./hosts/ronove
+          ];
+        };
       };
 
       # SD image output

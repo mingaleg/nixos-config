@@ -7,14 +7,9 @@
 {
   imports =
     [
+      ../core-common
       ./system-packages.nix
     ];
-
-  nixpkgs.config.allowUnfree = true;
-
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  time.timeZone = "Europe/London";
 
   i18n.defaultLocale = "en_US.UTF-8";
   console = {
@@ -68,11 +63,7 @@
   services.libinput.enable = true;
 
   users.users.mingaleg = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" "nixos" ];
-    openssh.authorizedKeys.keys = [
-      (builtins.readFile ../../ssh-keys/mingaleg-masterkey.pub)
-    ];
+    extraGroups = [ "nixos" ];
 
     # Generated with `mkpasswd -m sha-512`
     hashedPassword = "$6$MTF1jg6OQAMoJ4t9$hR1aan5eu/g0YDlp7CDVCXlnJmmau4nIExDPOaOACJFhpBPCvRNYMi.RwI5ktJgJZWlt6APujxccrYpqutXAq/";
@@ -115,8 +106,6 @@
     };
   };
 
-  services.openssh.enable = true;
-
   # Allow running unpatched binaries (e.g., VS Code Remote server)
   programs.nix-ld.enable = true;
 
@@ -131,6 +120,4 @@
 
   # Enable building for aarch64
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-  # Enable remote deployments and binary cache
-  nix.settings.trusted-users = [ "root" "mingaleg" ];
 }

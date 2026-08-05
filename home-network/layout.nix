@@ -76,6 +76,12 @@ let
         mac = "2c:cf:67:cc:55:39";
       };
     };
+    ronove = {
+      interfaces.eth = {
+        ip = ip 251;
+        mac = "64:00:6a:38:f1:37";
+      };
+    };
     linksys = {
       interfaces.eth = {
         ip = ip 254;
