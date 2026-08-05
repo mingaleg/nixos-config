@@ -26,7 +26,6 @@
     poppler-utils  # PDF preview in yazi
 
     # Network
-    cifs-utils  # SMB/CIFS mounting
     samba       # SMB client tools (smbclient)
     wireguard-tools
 

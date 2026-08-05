@@ -7,7 +7,7 @@ in
   imports = lib.optionals (builtins.pathExists ./hardware-configuration.nix) [
     ./hardware-configuration.nix
   ] ++ [
-    ./samba-server.nix
+    ../../modules/pegasus-mount.nix
     ./pihole.nix
     # ./strongswan.nix  # Disabled in favor of WireGuard-only VPN (kept for rollback)
     ./wireguard-vpn.nix
@@ -20,12 +20,6 @@ in
   networking.hostName = "pi";
   
   nix.settings.trusted-users = [ "root" "mingaleg" ];
-
-  fileSystems."/mnt/pegasus" = {
-    device = "/dev/disk/by-uuid/0fd7125c-e77f-4a65-8e3d-984ecb96cadc";
-    fsType = "ext4";
-    options = [ "defaults" "nofail" ];
-  };
 
   # Static IP for the DHCP/DNS server
   networking.useDHCP = false;

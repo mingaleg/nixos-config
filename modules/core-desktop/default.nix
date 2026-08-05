@@ -8,6 +8,7 @@
   imports =
     [
       ../core-common
+      ../pegasus-mount.nix
       ./system-packages.nix
     ];
 
@@ -75,24 +76,6 @@
 
   environment = {
     pathsToLink = [ "/libexec" ];
-  };
-
-  fileSystems."/mnt/pegasus" = {
-    device = "//ronove/pegasus";
-    fsType = "cifs";
-    options = [
-      "x-systemd.automount"
-      "noauto"
-      "x-systemd.idle-timeout=60"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
-      "credentials=/etc/nixos/smb-credentials-pegasus"
-      "uid=1001"
-      "gid=100"
-      "file_mode=0664"
-      "dir_mode=0775"
-      "cache=loose"
-    ];
   };
 
   # Dunst notification daemon as a user service
