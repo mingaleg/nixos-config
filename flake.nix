@@ -119,6 +119,14 @@
           modules = [
             agenix.nixosModules.default
             ./hosts/ronove
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "backup";
+              home-manager.users.mingaleg = import ./home-ronove.nix;
+              home-manager.extraSpecialArgs = inputs;
+            }
           ];
         };
       };
