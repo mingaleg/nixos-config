@@ -17,4 +17,7 @@ wireguardSecrets // {
 
   # Google Cloud Platform DNS service account credentials (JSON key)
   "gcp-dns-credentials.age".publicKeys = [ mingaleg allHosts ];
+
+  # CIFS credentials for mounting //ronove/pegasus
+  "smb-credentials-pegasus.age".publicKeys = [ mingaleg allHosts ];
 }
