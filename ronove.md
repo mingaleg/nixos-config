@@ -173,7 +173,14 @@ external dependencies:
   `pi` used to do. `modules/pihole.nix`'s classless-static-route and `hosts/vps/wireguard.nix`
   (`wg-pi` + `wg-clients`) both updated to route the modem host via `ronove`, using a `/32`
   (not the full `/24`) sourced from `layout.machines.modem.interfaces.usb.ip` to minimize
-  collision risk with VPN clients' own local networks. Deploy pending on `ronove` + `vps`.
+  collision risk with VPN clients' own local networks. Deployed on `ronove` + `vps` and
+  confirmed working end-to-end: modem UI reachable both from the LAN and through the VPN
+  (`wg-clients`) tunnel. One red herring while debugging: pinging `192.168.8.1` directly
+  *from `vps` itself* failed with `sendmsg: Destination address required` - a source-address
+  quirk specific to locally-originated sockets on a NOARP point-to-point WireGuard interface,
+  unrelated to actual forwarded VPN-client traffic (confirmed via `ping -I wg-pi`, which
+  worked fine, and `ip route get ... from 10.100.0.80 iif wg-clients`, which resolved
+  correctly). Not a sign of any config problem.
 
 - **pi now uses DHCP for networking** - [done] `pi` no longer statically configures its IP;
   `hosts/pi/default.nix` dropped `networking.useDHCP = false` and the static `end0` address, so
