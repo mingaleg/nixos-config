@@ -10,8 +10,6 @@ in
     ../../modules/pegasus-mount.nix
     ../../modules/network-tuning.nix
     ./pihole.nix
-    # ./strongswan.nix  # Disabled in favor of WireGuard-only VPN (kept for rollback)
-    # ./wireguard-vpn.nix  # Disabled - WireGuard endpoint moved to ronove (kept for rollback)
     ./nginx-www.nix
   ];
 
@@ -47,8 +45,6 @@ in
     vim git htop tmux ntfs3g
     ethtool iproute2 pciutils usbutils
     iperf3 curl wget bind speedtest-cli
-    # strongswan  # Disabled in favor of WireGuard (kept for rollback)
-    wireguard-tools
   ];
 
   # Force CPU to performance governor

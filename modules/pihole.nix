@@ -93,17 +93,14 @@ in
             # IPv6 DHCP/SLAAC and router advertisements still work for local connectivity
             "filter-AAAA"
 
-            # Default route, WireGuard networks + modem host (via ronove),
-            # strongswan VPN subnet (still via pi, still hosting that role)
+            # Default route, WireGuard networks + modem host (all via ronove)
             (let
               ronove = layout.machines.ronove.interfaces.eth.ip;
-              pi = layout.machines.pi.interfaces.eth.ip;
               modem = layout.machines.modem.interfaces.usb.ip;
             in classlessStaticRoutes [
               { destination = "0.0.0.0/0"; gateway = layout.network.defaultGateway; }
               { destination = "10.200.0.0/24"; gateway = ronove; }
               { destination = "10.100.0.0/24"; gateway = ronove; }
-              { destination = "172.26.249.160/28"; gateway = pi; }
               { destination = "${modem}/32"; gateway = ronove; }
             ])
           ];

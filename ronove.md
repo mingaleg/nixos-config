@@ -194,8 +194,13 @@ external dependencies:
   for the LAN, UDP 123 opened). Not paralleled first like Pi-hole was - low risk enough for a
   straight cutover. Deploy pending on both hosts (remove from `pi`, add on `ronove`).
 
-- **`strongswan.nix`** (already disabled, kept for rollback) - delete once confident the
-  WireGuard-only VPN has been stable for a while. No coordination needed.
+- **`strongswan.nix` and `wireguard-vpn.nix` on `pi`** - [done] both deleted (previously
+  disabled/commented out, kept for rollback; WireGuard-only VPN has been stable). Also
+  removed their now-unused secrets (`wireguard-pi-private.age`, `vpn-users.age`,
+  `gcp-dns-credentials.age`) from `secrets/wireguard.nix`/`secrets/secrets.nix`, and dropped
+  the now-dead `172.26.249.160/28` (strongswan's old VPN pool) route from
+  `modules/pihole.nix`'s classless-static-route - only the default route, WireGuard networks,
+  and the modem host remain, all via `ronove`. Deploy pending on `pi` + `ronove`.
 
 ### 2. Final pi decommission
 

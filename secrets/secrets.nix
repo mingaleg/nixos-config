@@ -12,12 +12,6 @@ wireguardSecrets // {
   # Murmur (Mumble server) environment: MURMUR_SERVER_PASSWORD and MURMUR_SUPW
   "murmur-env.age".publicKeys = [ mingaleg allHosts ];
 
-  # VPN user credentials (EAP-MSCHAPv2 passwords)
-  "vpn-users.age".publicKeys = [ mingaleg allHosts ];
-
-  # Google Cloud Platform DNS service account credentials (JSON key)
-  "gcp-dns-credentials.age".publicKeys = [ mingaleg allHosts ];
-
   # CIFS credentials for mounting //ronove/pegasus
   "smb-credentials-pegasus.age".publicKeys = [ mingaleg allHosts ];
 }
