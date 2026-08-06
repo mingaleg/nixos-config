@@ -95,7 +95,9 @@ Stage 3 status: in progress
   is meant to run the DHCP server, it can't depend on DHCP (from itself or `pi`) to get its
   own address at boot. No router change needed (step 3 - router is only the default gateway).
   Step 4 (clients picking up the new server) is automatic once deployed, either on next lease
-  renewal or forced per-device.
+  renewal or forced per-device. Confirmed working: `ronove`'s DHCP listener is live (`pi`'s is
+  gone), `mingapred` renewed and received its reserved lease (`172.26.249.2`) from `ronove`'s
+  `/etc/pihole/dhcp.leases`. Pi-hole migration (DNS + DHCP) fully done and validated.
 
 Remaining steps (Stage 3+)
 ===
