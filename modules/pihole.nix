@@ -16,6 +16,13 @@ let
       "${iface.mac},${iface.ip},${name}"
     ) (lib.filterAttrs (_: iface: iface ? mac) m.interfaces)
   ) layout.machines);
+
+  # Build a DHCP option 121 (classless static route) value from a list of
+  # { destination, gateway } pairs, e.g. { destination = "10.200.0.0/24"; gateway = ...; }.
+  # When option 121 is present, it overrides the default gateway (option 3).
+  classlessStaticRoutes = routes:
+    "dhcp-option=option:classless-static-route,"
+    + lib.concatStringsSep "," (lib.concatMap (r: [ r.destination r.gateway ]) routes);
 in
 {
   options.pihole = {
@@ -86,11 +93,19 @@ in
             # IPv6 DHCP/SLAAC and router advertisements still work for local connectivity
             "filter-AAAA"
 
-            # Classless Static Routes (option 121)
-            # When option 121 is present, it overrides the default gateway (option 3)
-            # Include: default route, WireGuard networks + modem host (via ronove),
+            # Default route, WireGuard networks + modem host (via ronove),
             # strongswan VPN subnet (still via pi, still hosting that role)
-            "dhcp-option=option:classless-static-route,0.0.0.0/0,${layout.network.defaultGateway},10.200.0.0/24,${layout.machines.ronove.interfaces.eth.ip},10.100.0.0/24,${layout.machines.ronove.interfaces.eth.ip},172.26.249.160/28,${layout.machines.pi.interfaces.eth.ip},${layout.machines.modem.interfaces.usb.ip}/32,${layout.machines.ronove.interfaces.eth.ip}"
+            (let
+              ronove = layout.machines.ronove.interfaces.eth.ip;
+              pi = layout.machines.pi.interfaces.eth.ip;
+              modem = layout.machines.modem.interfaces.usb.ip;
+            in classlessStaticRoutes [
+              { destination = "0.0.0.0/0"; gateway = layout.network.defaultGateway; }
+              { destination = "10.200.0.0/24"; gateway = ronove; }
+              { destination = "10.100.0.0/24"; gateway = ronove; }
+              { destination = "172.26.249.160/28"; gateway = pi; }
+              { destination = "${modem}/32"; gateway = ronove; }
+            ])
           ];
         };
         dhcp = {
