@@ -72,13 +72,13 @@ let
     };
     pi = {
       interfaces.eth = {
-        ip = ip 253;
+        ip = ip 251;
         mac = "2c:cf:67:cc:55:39";
       };
     };
     ronove = {
       interfaces.eth = {
-        ip = ip 251;
+        ip = ip 253;
         mac = "64:00:6a:38:f1:37";
       };
     };

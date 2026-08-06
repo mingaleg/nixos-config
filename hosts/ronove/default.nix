@@ -7,12 +7,15 @@ in
   imports = [
     ./hardware-configuration.nix
     ../../modules/core-server
+    ../../modules/network-tuning.nix
     ./nginx-www.nix
     ./samba-server.nix
     ./pihole.nix
+    ./wireguard-vpn.nix
   ];
 
   networking.hostName = "ronove";
+  networkTuning.interface = "enp2s0";
 
   # Static IP now that ronove runs the DHCP/DNS server itself - can't depend
   # on DHCP (from itself or anything else) to get an address at boot.

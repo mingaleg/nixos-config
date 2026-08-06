@@ -8,6 +8,7 @@ in
 {
   # WireGuard VPN private keys
   "wireguard-vps-private.age".publicKeys = [ mingaleg allHosts ];
-  "wireguard-pi-private.age".publicKeys = [ mingaleg allHosts ];
+  "wireguard-pi-private.age".publicKeys = [ mingaleg allHosts ];  # unused now, kept for rollback
+  "wireguard-ronove-private.age".publicKeys = [ mingaleg allHosts ];
   "wireguard-mingamini.age".publicKeys = [ mingaleg allHosts ];
 }

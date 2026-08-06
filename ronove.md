@@ -99,6 +99,38 @@ Stage 3 status: in progress
   gone), `mingapred` renewed and received its reserved lease (`172.26.249.2`) from `ronove`'s
   `/etc/pihole/dhcp.leases`. Pi-hole migration (DNS + DHCP) fully done and validated.
 
+- **WireGuard endpoint (`wg0`) - done, not yet deployed**: moved to `ronove` entirely
+  (decided to *not* carry the modem/NAT role along - "not mission critical", can move later
+  independently). `hosts/ronove/wireguard-vpn.nix` added (new `wg0`, NAT for VPN clients
+  reaching the home network via `enp2s0`, no modem/`enu2` role) and wired into
+  `hosts/ronove/default.nix`. `hosts/pi/wireguard-vpn.nix`'s import commented out (kept for
+  rollback, same pattern as `strongswan.nix`); `pi`'s now-stale `wg0` entry dropped from its
+  `networking.nat.internalInterfaces`. `hosts/vps/wireguard.nix`'s `wg-pi` peer now points at
+  `ronove` (public key still a `REPLACE_ME_RONOVE_WIREGUARD_PUBLIC_KEY` placeholder - pending
+  you generating the keypair under `/mnt/pegasus/secrets/wireguard/` and encrypting it as
+  `secrets/wireguard-ronove-private.age`, per repo convention of secrets never passing through
+  the assistant); its `allowedIPs`/routes for the modem subnet (`192.168.8.0/24`) dropped from
+  both the `wg-pi` peer and `wg-clients`' routes, since that's not moving. **Still needed from
+  you**: the router's UDP 51821 port-forward, if one exists pointed at `pi`, should move to
+  `ronove` - out-of-band, not managed by this repo.
+
+- **`pi`/`ronove` IP addresses swapped** in `home-network/layout.nix`: `ronove` is now
+  `172.26.249.253` (pi's old address) and `pi` is now `172.26.249.251` (ronove's old address).
+  Both hosts pick this up automatically since their static-IP config reads from `layout.nix`
+  symbolically. This also exposed a real bug: `modules/pihole.nix`'s DHCP classless-static-route
+  (option 121) had `172.26.249.253` hardcoded as the gateway for *all* of the WireGuard subnets,
+  the strongswan VPN subnet, and the modem subnet - which was simply wrong now that WireGuard
+  lives on `ronove` while strongswan and the modem stay on `pi`. Rewrote it to derive each
+  gateway from `layout.machines.<host>.interfaces.eth.ip` instead of a hardcoded literal, so it
+  no longer depends on which literal IP either host holds.
+
+- **Network throughput tuning factored out** into a shared `modules/network-tuning.nix`
+  (`net.ipv4.ip_forward`, TCP buffer/window sysctls, and the ring-buffer/interrupt-coalescing
+  `network-optimization` systemd service - all previously `pi`-only), taking a
+  `networkTuning.interface` option. Applied to both `pi` (`end0`) and `ronove` (`enp2s0`), since
+  `ronove` now also does WireGuard forwarding, DHCP/DNS, and Samba traffic that benefit from the
+  same tuning.
+
 Remaining steps (Stage 3+)
 ===
 
@@ -111,18 +143,16 @@ external dependencies:
   on `ronove` in parallel, then DHCP cut over from `pi`); pending your deploy + confirmation
   that clients pick up the new DHCP/DNS server correctly.
 
-- **WireGuard endpoint (`wg0`) + NAT to the cellular modem (`enu2`)** - tightly coupled to
-  the HiLink modem being *physically* attached to `pi` (this is `pi`'s CGNAT workaround for
-  internet uplink). This cannot move to `ronove` without also moving the modem hardware.
-  Decide explicitly whether that's ever wanted; if not, this role is permanent on `pi`
-  (or whatever box the modem is plugged into) regardless of everything else moving off.
-  If the modem *does* move later:
-  1. Generate a new WireGuard keypair for `ronove`, add it as `vps`'s `wg-pi` peer
-     (`hosts/vps/wireguard.nix`), update `allowedIPs`/routes there.
-  2. Update the router's port-forward for UDP 51821 to point at `ronove`
-     (`172.26.249.251`) instead of `pi` (`172.26.249.253`) - manual, out-of-band, not
-     managed by this repo.
-  3. Only then decommission `pi`'s `wireguard-vpn.nix`.
+- **WireGuard endpoint** - [done, see Stage 3 status above] moved to `ronove`; pending the
+  keypair/secret generation, filling in the public key placeholder, and your deploy.
+
+- **NAT to the cellular modem (`enu2`)** - tightly coupled to the HiLink modem being
+  *physically* attached to `pi`. Deliberately not moved with WireGuard - "not mission
+  critical" - can move to `ronove` later, independently, once the modem hardware itself moves.
+  When that happens: update `pi`'s modem-NAT config to live on `ronove` instead (interface
+  names etc.), and update the modem-subnet gateway in `modules/pihole.nix`'s
+  classless-static-route accordingly (already layout-driven, so this becomes a one-line change
+  once `layout.machines.<host>.interfaces.eth.ip` is pointed at the right host).
 
 - **Chrony NTP server** - low risk, no external dependents besides LAN clients pointing at
   `pi` for time. Can move to `ronove` independently of the above, whenever convenient.

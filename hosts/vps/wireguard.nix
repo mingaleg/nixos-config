@@ -10,7 +10,7 @@
   };
 
   networking.wireguard.interfaces = {
-    # Tunnel to Pi (permanent connection through CGNAT)
+    # Tunnel to ronove (home network gateway)
     wg-pi = {
       ips = [ "10.200.0.1/24" ];
       listenPort = 51821;
@@ -19,21 +19,19 @@
 
       peers = [
         {
-          # Pi
-          publicKey = "vCE5wvOPRlHj2ts6d5t7gKxHB2bULtweDpM/B/6shCM=";
+          # ronove
+          publicKey = "REPLACE_ME_RONOVE_WIREGUARD_PUBLIC_KEY";
           allowedIPs = [
-            "10.200.0.2/32"           # Pi's tunnel IP
+            "10.200.0.2/32"           # ronove's tunnel IP
             "172.26.249.0/24"         # Home network
-            "192.168.8.0/24"          # Modem network
           ];
           persistentKeepalive = 25;
         }
       ];
 
-      # Fix the route to use Pi as gateway
+      # Fix the route to use ronove as gateway
       postSetup = ''
         ${pkgs.iproute2}/bin/ip route replace 172.26.249.0/24 via 10.200.0.2 dev wg-pi
-        ${pkgs.iproute2}/bin/ip route replace 192.168.8.0/24 via 10.200.0.2 dev wg-pi
 
         # Clamp MSS for TCP packets traversing the 1380 MTU tunnel
         ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -o wg-pi -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
@@ -42,7 +40,6 @@
 
       postShutdown = ''
         ${pkgs.iproute2}/bin/ip route del 172.26.249.0/24 via 10.200.0.2 dev wg-pi || true
-        ${pkgs.iproute2}/bin/ip route del 192.168.8.0/24 via 10.200.0.2 dev wg-pi || true
 
         # Remove MSS clamping rules
         ${pkgs.iptables}/bin/iptables -t mangle -D FORWARD -o wg-pi -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu || true
@@ -81,16 +78,14 @@
         }
       ];
 
-      # Route client traffic to home network and modem through Pi tunnel
-      # (|| true makes it non-fatal if Pi isn't connected yet)
+      # Route client traffic to home network through the ronove tunnel
+      # (|| true makes it non-fatal if ronove isn't connected yet)
       postSetup = ''
         ${pkgs.iproute2}/bin/ip route replace 172.26.249.0/24 via 10.200.0.2 dev wg-pi || true
-        ${pkgs.iproute2}/bin/ip route replace 192.168.8.0/24 via 10.200.0.2 dev wg-pi || true
       '';
 
       postShutdown = ''
         ${pkgs.iproute2}/bin/ip route del 172.26.249.0/24 via 10.200.0.2 dev wg-pi || true
-        ${pkgs.iproute2}/bin/ip route del 192.168.8.0/24 via 10.200.0.2 dev wg-pi || true
       '';
     };
   };
