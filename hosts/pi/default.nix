@@ -1,25 +1,14 @@
 { config, pkgs, lib, ... }:
 
-let
-  layout = import ../../home-network/layout.nix;
-in
 {
   imports = lib.optionals (builtins.pathExists ./hardware-configuration.nix) [
     ./hardware-configuration.nix
   ] ++ [
-    ../../modules/pegasus-mount.nix
     ../../modules/network-tuning.nix
-    ./pihole.nix
-    ./nginx-www.nix
   ];
 
   # Agenix configuration
   age.identityPaths = [ "/root/.ssh/agenix-hosts" ];
-
-  # Mount pegasus by IP: pi is itself the DNS server, and its
-  # systemd-resolved setup doesn't reliably resolve local hostnames back
-  # through its own pihole, so avoid that self-dependency here.
-  pegasusMount.host = layout.machines.ronove.interfaces.eth.ip;
 
   networkTuning.interface = "end0";
 
