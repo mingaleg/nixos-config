@@ -2,6 +2,7 @@
 
 set -e
 
-HOST=$1
+FLAKE=$1
+HOST=${2:-$FLAKE}
 
-nixos-rebuild switch --flake .#${HOST} --target-host ${HOST} --sudo --ask-sudo-password
+nixos-rebuild switch --flake .#${FLAKE} --target-host ${HOST} --sudo --ask-sudo-password
