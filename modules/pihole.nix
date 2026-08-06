@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, options, pkgs, lib, ... }:
 
 let
   layout = import ../home-network/layout.nix;
@@ -132,12 +132,17 @@ in
       ];
     };
 
-    # Disable systemd-resolved DNS stub listener to avoid port 53 conflict
+    # Disable systemd-resolved DNS stub listener to avoid port 53 conflict.
+    # This module is shared across hosts on different nixpkgs channels:
+    # services.resolved.settings only exists from ~26.05 onward (extraConfig
+    # is removed there); older channels (e.g. pi on 25.11) only have
+    # extraConfig. Pick whichever the current channel actually supports.
     services.resolved = {
       enable = true;
-      extraConfig = ''
-        DNSStubListener=no
-      '';
-    };
+    } // (
+      if options.services.resolved ? settings
+      then { settings.Resolve.DNSStubListener = false; }
+      else { extraConfig = "DNSStubListener=no\n"; }
+    );
   };
 }

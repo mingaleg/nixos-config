@@ -2,13 +2,22 @@
   description = "mingaleg's NixOS Flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+
+    # Pinned to nixos-25.11 for mingamini only, which has a screen-tearing
+    # issue on nixos-26.05 that hasn't been investigated yet.
+    nixpkgs-2511.url = "github:NixOS/nixpkgs/nixos-25.11";
 
     nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    home-manager-2511 = {
+      url = "github:nix-community/home-manager/release-25.11";
+      inputs.nixpkgs.follows = "nixpkgs-2511";
     };
 
     nixos-raspberrypi = {
@@ -30,7 +39,7 @@
     ];
   };
 
-  outputs = { self, nixpkgs, home-manager, nixos-raspberrypi, agenix, ... }@inputs:
+  outputs = { self, nixpkgs, nixpkgs-2511, home-manager, home-manager-2511, nixos-raspberrypi, agenix, ... }@inputs:
     let
       home-manager-modules = [
         home-manager.nixosModules.home-manager
@@ -45,13 +54,13 @@
     in
     {
       nixosConfigurations = {
-        "mingamini" = nixpkgs.lib.nixosSystem {
+        "mingamini" = nixpkgs-2511.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = inputs;
           modules = [
             agenix.nixosModules.default
             ./hosts/mingamini
-            home-manager.nixosModules.home-manager
+            home-manager-2511.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
