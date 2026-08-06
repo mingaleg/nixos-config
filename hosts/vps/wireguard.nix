@@ -20,7 +20,7 @@
       peers = [
         {
           # ronove
-          publicKey = "REPLACE_ME_RONOVE_WIREGUARD_PUBLIC_KEY";
+          publicKey = "CPD60Ky/T0u5LAOlE3ceTbJGHDNQV1jhJEGZcIlRYAE=";
           allowedIPs = [
             "10.200.0.2/32"           # ronove's tunnel IP
             "172.26.249.0/24"         # Home network
