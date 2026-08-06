@@ -70,5 +70,18 @@ in
     }];
   };
 
+  # Allow forwarding to the modem interface
+  networking.firewall.trustedInterfaces = [ "enp0s20u10" ];
+
+  # NAT for modem access - masquerade traffic going to the modem (from both
+  # LAN clients via enp2s0 and VPN clients via wg0) so the modem sees
+  # requests from ronove's IP (192.168.8.100) instead of the original
+  # client IPs, which the modem has no route back to.
+  networking.nat = {
+    enable = true;
+    externalInterface = "enp0s20u10";
+    internalInterfaces = [ "enp2s0" "wg0" ];
+  };
+
   system.stateVersion = "25.11";
 }

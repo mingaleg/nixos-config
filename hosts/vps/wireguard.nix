@@ -1,5 +1,8 @@
 { config, pkgs, ... }:
 
+let
+  layout = import ../../home-network/layout.nix;
+in
 {
   # Agenix secret for WireGuard private key
   age.secrets.wireguard-vps-private = {
@@ -22,8 +25,9 @@
           # ronove
           publicKey = "CPD60Ky/T0u5LAOlE3ceTbJGHDNQV1jhJEGZcIlRYAE=";
           allowedIPs = [
-            "10.200.0.2/32"           # ronove's tunnel IP
-            "172.26.249.0/24"         # Home network
+            "10.200.0.2/32"                                # ronove's tunnel IP
+            "172.26.249.0/24"                               # Home network
+            "${layout.machines.modem.interfaces.usb.ip}/32" # Cellular modem, routed via ronove
           ];
           persistentKeepalive = 25;
         }
@@ -32,6 +36,7 @@
       # Fix the route to use ronove as gateway
       postSetup = ''
         ${pkgs.iproute2}/bin/ip route replace 172.26.249.0/24 via 10.200.0.2 dev wg-pi
+        ${pkgs.iproute2}/bin/ip route replace ${layout.machines.modem.interfaces.usb.ip}/32 via 10.200.0.2 dev wg-pi
 
         # Clamp MSS for TCP packets traversing the 1380 MTU tunnel
         ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -o wg-pi -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
@@ -40,6 +45,7 @@
 
       postShutdown = ''
         ${pkgs.iproute2}/bin/ip route del 172.26.249.0/24 via 10.200.0.2 dev wg-pi || true
+        ${pkgs.iproute2}/bin/ip route del ${layout.machines.modem.interfaces.usb.ip}/32 via 10.200.0.2 dev wg-pi || true
 
         # Remove MSS clamping rules
         ${pkgs.iptables}/bin/iptables -t mangle -D FORWARD -o wg-pi -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu || true
@@ -82,10 +88,12 @@
       # (|| true makes it non-fatal if ronove isn't connected yet)
       postSetup = ''
         ${pkgs.iproute2}/bin/ip route replace 172.26.249.0/24 via 10.200.0.2 dev wg-pi || true
+        ${pkgs.iproute2}/bin/ip route replace ${layout.machines.modem.interfaces.usb.ip}/32 via 10.200.0.2 dev wg-pi || true
       '';
 
       postShutdown = ''
         ${pkgs.iproute2}/bin/ip route del 172.26.249.0/24 via 10.200.0.2 dev wg-pi || true
+        ${pkgs.iproute2}/bin/ip route del ${layout.machines.modem.interfaces.usb.ip}/32 via 10.200.0.2 dev wg-pi || true
       '';
     };
   };

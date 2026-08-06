@@ -30,7 +30,8 @@
       ];
 
       # NAT for VPN clients accessing the home network.
-      # (No modem/enu2 role here - that stays on pi for now.)
+      # (Modem NAT/forwarding for VPN + LAN clients lives in
+      # hosts/ronove/default.nix's networking.nat block.)
       postSetup = ''
         ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o enp2s0 -j MASQUERADE
         ${pkgs.iptables}/bin/iptables -A FORWARD -i wg0 -o enp2s0 -j ACCEPT

@@ -88,9 +88,9 @@ in
 
             # Classless Static Routes (option 121)
             # When option 121 is present, it overrides the default gateway (option 3)
-            # Include: default route, WireGuard networks (via ronove, the wg0 endpoint),
-            # strongswan VPN subnet and modem network (both via pi, still hosting those roles)
-            "dhcp-option=option:classless-static-route,0.0.0.0/0,${layout.network.defaultGateway},10.200.0.0/24,${layout.machines.ronove.interfaces.eth.ip},10.100.0.0/24,${layout.machines.ronove.interfaces.eth.ip},172.26.249.160/28,${layout.machines.pi.interfaces.eth.ip},192.168.8.0/24,${layout.machines.pi.interfaces.eth.ip}"
+            # Include: default route, WireGuard networks + modem host (via ronove),
+            # strongswan VPN subnet (still via pi, still hosting that role)
+            "dhcp-option=option:classless-static-route,0.0.0.0/0,${layout.network.defaultGateway},10.200.0.0/24,${layout.machines.ronove.interfaces.eth.ip},10.100.0.0/24,${layout.machines.ronove.interfaces.eth.ip},172.26.249.160/28,${layout.machines.pi.interfaces.eth.ip},${layout.machines.modem.interfaces.usb.ip}/32,${layout.machines.ronove.interfaces.eth.ip}"
           ];
         };
         dhcp = {
