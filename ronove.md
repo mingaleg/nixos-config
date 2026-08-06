@@ -161,13 +161,19 @@ external dependencies:
   confirmed working; router UDP 51821 port-forward still to be checked/moved by you if it
   exists.
 
-- **NAT to the cellular modem (`enu2`)** - tightly coupled to the HiLink modem being
-  *physically* attached to `pi`. Deliberately not moved with WireGuard - "not mission
-  critical" - can move to `ronove` later, independently, once the modem hardware itself moves.
-  When that happens: update `pi`'s modem-NAT config to live on `ronove` instead (interface
-  names etc.), and update the modem-subnet gateway in `modules/pihole.nix`'s
-  classless-static-route accordingly (already layout-driven, so this becomes a one-line change
-  once `layout.machines.<host>.interfaces.eth.ip` is pointed at the right host).
+- **NAT to the cellular modem (`enu2`)** - [done] modem hardware physically detached from
+  `pi`, so `pi`'s `enu2` static IP, modem-NAT (`networking.nat`), and `enu2`
+  `trustedInterfaces` config were removed from `hosts/pi/default.nix`. Modem is not yet
+  attached to `ronove` (or anywhere) - `192.168.8.0/24` routing via `pi` in
+  `modules/pihole.nix`'s classless-static-route is stale until the modem is reattached
+  somewhere and that gateway is updated accordingly.
+
+- **pi now uses DHCP for networking** - [done] `pi` no longer statically configures its IP;
+  `hosts/pi/default.nix` dropped `networking.useDHCP = false` and the static `end0` address, so
+  `pi` picks up its IP and DNS from `ronove`'s DHCP/Pi-hole (still pinned to
+  `172.26.249.251` via the existing MAC-based static reservation in `modules/pihole.nix`).
+  `networking.nameservers` override removed too, so `pi` uses the DHCP-announced DNS
+  (`ronove`) instead of pointing at itself. Pending your deploy + confirmation.
 
 - **Chrony NTP server** - low risk, no external dependents besides LAN clients pointing at
   `pi` for time. Can move to `ronove` independently of the above, whenever convenient.

@@ -29,35 +29,8 @@ in
   
   nix.settings.trusted-users = [ "root" "mingaleg" ];
 
-  # Static IP for the DHCP/DNS server
-  networking.useDHCP = false;
-  networking.interfaces.end0 = {
-    ipv4.addresses = [{
-      address = layout.machines.pi.interfaces.eth.ip;
-      prefixLength = layout.network.prefixLength;
-    }];
-  };
-  # HiLink modem interface - static IP to access modem API at 192.168.8.1
-  # No gateway set, so internet traffic stays on end0
-  networking.interfaces.enu2 = {
-    ipv4.addresses = [{
-      address = "192.168.8.100";
-      prefixLength = 24;
-    }];
-  };
-  networking.defaultGateway = layout.network.defaultGateway;
-  networking.nameservers = [ "127.0.0.1" "1.1.1.1" ];  # Use itself for DNS
-
-  # Allow forwarding to modem interface
-  networking.firewall.trustedInterfaces = [ "enu2" ];
-
-  # NAT for modem access - masquerade traffic going to modem
-  # so modem sees requests from Pi's IP (192.168.8.100) instead of client IPs
-  networking.nat = {
-    enable = true;
-    externalInterface = "enu2";
-    internalInterfaces = [ "end0" ];
-  };
+  # pi now gets its IP and DNS via DHCP from ronove (static reservation by
+  # MAC keeps it pinned to layout.machines.pi.interfaces.eth.ip).
 
   services.openssh.enable = true;
 
