@@ -1,0 +1,125 @@
+{ config, pkgs, lib, ... }:
+
+let
+  layout = import ../home-network/layout.nix;
+
+  # Generate DNS host entries: "IP FQDN shortname" (one entry per interface)
+  dnsHosts = lib.concatLists (lib.mapAttrsToList (name: m:
+    lib.mapAttrsToList (_ifaceName: iface:
+      "${iface.ip} ${name}.${layout.domain} ${name}"
+    ) m.interfaces
+  ) layout.machines);
+
+  # Generate DHCP static leases for all interfaces with MAC addresses: "MAC,IP,hostname"
+  dhcpHosts = lib.concatLists (lib.mapAttrsToList (name: m:
+    lib.mapAttrsToList (_ifaceName: iface:
+      "${iface.mac},${iface.ip},${name}"
+    ) (lib.filterAttrs (_: iface: iface ? mac) m.interfaces)
+  ) layout.machines);
+in
+{
+  options.pihole = {
+    interface = lib.mkOption {
+      type = lib.types.str;
+      description = "LAN interface pihole-ftl listens on for DHCP/router advertisements.";
+    };
+
+    dhcpActive = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Whether this pihole instance runs the DHCP server. Only one instance
+        on the LAN should have this enabled at a time.
+      '';
+    };
+  };
+
+  config = {
+    services.pihole-web = {
+      enable = true;
+      ports = [80];
+    };
+
+    services.pihole-ftl = {
+      enable = true;
+
+      # Open firewall ports
+      openFirewallDNS = true;                      # Port 53 for DNS
+      openFirewallDHCP = config.pihole.dhcpActive;  # Ports 67/68 for DHCP
+      openFirewallWebserver = true;                 # Port 80 for web interface
+
+      settings = {
+        dns = {
+          listeningMode = "all";
+          upstreams = [
+            "1.1.1.1"
+            "1.0.0.1"
+            "8.8.8.8"
+          ];
+          domainNeeded = true;
+          expandHosts = true;
+          domain.name = layout.domain;
+          domain.local = true;  # Don't forward queries for this domain upstream
+          localise = false;
+          hosts = dnsHosts;
+        };
+        webserver = {
+          port = "80";
+          api = {
+            pwhash = "$BALLOON-SHA256$v=1$s=1024,t=32$aEOQdLB2YJE+JonvYAkS8w==$1Rrlzx4qKDP8c+G+3FAHbMc7BKym5ZK+1h9SFOYSsKI=";
+          };
+          session = {
+            timeout = 43200; # 12h
+          };
+        };
+        misc = {
+          # Explicitly tell dnsmasq to resolve this domain locally, never forward upstream
+          dnsmasq_lines = [
+            "local=/${layout.domain}/"
+            "domain=${layout.domain}"  # Send domain to DHCP clients
+
+            # IPv6 Router Advertisement - fixes missing on-link flag from Linksys
+            "enable-ra"
+            "ra-param=${config.pihole.interface},0,0"  # interface, mtu (0=default), router-lifetime (0=not a default gateway)
+
+            # Filter all AAAA records to avoid IPv6 MTU issues on direct path
+            # IPv6 DHCP/SLAAC and router advertisements still work for local connectivity
+            "filter-AAAA"
+
+            # Classless Static Routes (option 121)
+            # When option 121 is present, it overrides the default gateway (option 3)
+            # Include: default route, VPN networks, VPN subnet, and modem network
+            "dhcp-option=option:classless-static-route,0.0.0.0/0,172.26.249.254,10.200.0.0/24,172.26.249.253,10.100.0.0/24,172.26.249.253,172.26.249.160/28,172.26.249.253,192.168.8.0/24,172.26.249.253"
+          ];
+        };
+        dhcp = {
+          active = config.pihole.dhcpActive;
+          start = layout.network.dhcp.start;
+          end = layout.network.dhcp.end;
+          router = layout.network.defaultGateway;
+          netmask = layout.network.netmask;
+          leaseTime = layout.network.dhcp.leaseTime;
+          hosts = dhcpHosts;
+        };
+      };
+
+      # Blocklists - Steven Black's unified hosts
+      lists = [
+        {
+          url = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts";
+          type = "block";
+          enabled = true;
+          description = "Steven Black's HOSTS";
+        }
+      ];
+    };
+
+    # Disable systemd-resolved DNS stub listener to avoid port 53 conflict
+    services.resolved = {
+      enable = true;
+      extraConfig = ''
+        DNSStubListener=no
+      '';
+    };
+  };
+}

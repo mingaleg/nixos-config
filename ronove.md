@@ -71,6 +71,19 @@ Stage 2 status: done
 - `minganix` host removed entirely (unused) rather than wired into agenix, since it was the
   only `core-desktop` consumer without an agenix identity configured.
 
+Stage 3 status: in progress
+===
+
+- **Pi-hole (DNS + DHCP) - step 1/4 done**: `pihole-ftl`/`pihole-web` config factored out of
+  `hosts/pi/pihole.nix` into a shared `modules/pihole.nix` (takes a `pihole.interface` option
+  for the RA/DHCP interface and a `pihole.dhcpActive` option so only one instance runs DHCP
+  at a time). `hosts/pi/pihole.nix` now just sets `pihole.interface = "end0"` and
+  `pihole.dhcpActive = true` (unchanged behaviour). `hosts/ronove/pihole.nix` added and wired
+  into `hosts/ronove/default.nix`, standing up DNS + web on `ronove` in parallel with
+  `pihole.interface = "enp2s0"` and `pihole.dhcpActive = false` - `pi` remains the sole DHCP
+  server for now. Not yet deployed; deploy and validate DNS resolution against `ronove`
+  before proceeding to the DHCP cutover (step 2 below).
+
 Remaining steps (Stage 3+)
 ===
 
@@ -81,8 +94,9 @@ external dependencies:
 
 - **Pi-hole (DNS + DHCP)** - highest blast radius: every device on the LAN depends on it.
   Sequencing if/when moved to `ronove`:
-  1. Stand up `pihole-ftl`/`pihole-web` on `ronove` in parallel (reuse `pi/pihole.nix`
-     almost verbatim - it's already fully driven by `home-network/layout.nix`).
+  1. [done, see Stage 3 status above] Stand up `pihole-ftl`/`pihole-web` on `ronove` in
+     parallel (reuse `pi/pihole.nix` almost verbatim - it's already fully driven by
+     `home-network/layout.nix`).
   2. Disable Pi-hole's DHCP server on `pi`, enable it on `ronove` in the same
      `nixos-rebuild switch` (or accept a short window with no DHCP server - existing leases
      keep working until they expire, `leaseTime = "7h"` in `layout.nix`).

@@ -6,6 +6,7 @@
     ../../modules/core-server
     ./nginx-www.nix
     ./samba-server.nix
+    ./pihole.nix
   ];
 
   networking.hostName = "ronove";
