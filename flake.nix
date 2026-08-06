@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs-2605.url = "github:NixOS/nixpkgs/nixos-26.05";
 
     nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
 
@@ -30,7 +31,7 @@
     ];
   };
 
-  outputs = { self, nixpkgs, home-manager, nixos-raspberrypi, agenix, ... }@inputs:
+  outputs = { self, nixpkgs, nixpkgs-2605, home-manager, nixos-raspberrypi, agenix, ... }@inputs:
     let
       home-manager-modules = [
         home-manager.nixosModules.home-manager
@@ -105,7 +106,9 @@
         };
 
         # Home server - replacing pi's non-network services
-        "ronove" = nixpkgs.lib.nixosSystem {
+        # On nixos-26.05 (not the fleet-wide nixos-25.11) for pihole-ftl 6.7+,
+        # which adds the dns.localise toggle needed for VPN A records.
+        "ronove" = nixpkgs-2605.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = inputs;
           modules = [
