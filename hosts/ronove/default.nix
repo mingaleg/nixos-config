@@ -50,8 +50,25 @@ in
 
   # HiLink cellular modem (Huawei E353/E3131) enumerates as a mass-storage
   # device (12d1:1f01) on cold-plug and needs usb_modeswitch to flip it into
-  # modem/CDC-Ethernet mode before it presents a network interface.
-  services.udev.packages = [ pkgs.usb-modeswitch-data ];
+  # modem/CDC-Ethernet mode before it presents a network interface (then
+  # appears as enp0s20u10). The packaged udev rule dispatches to a templated
+  # systemd service (usb_modeswitch@.service) whose compiled dispatcher binary
+  # is broken in this nixpkgs build (errors on `--switch-mode` with "invalid
+  # command name" from its Tcl usage parser) - confirmed by running it
+  # manually. Bypassing it with our own udev rule that calls `usb_modeswitch`
+  # directly, which works fine.
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", ATTR{idProduct}=="1f01", RUN+="${pkgs.usb-modeswitch}/sbin/usb_modeswitch -v 0x12d1 -p 0x1f01 -c ${pkgs.usb-modeswitch-data}/share/usb_modeswitch/12d1:1f01"
+  '';
+
+  # HiLink modem interface - static IP to access modem API at 192.168.8.1.
+  # No gateway set, so internet traffic stays on enp2s0.
+  networking.interfaces.enp0s20u10 = {
+    ipv4.addresses = [{
+      address = "192.168.8.100";
+      prefixLength = 24;
+    }];
+  };
 
   system.stateVersion = "25.11";
 }
