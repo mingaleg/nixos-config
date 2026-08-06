@@ -161,12 +161,19 @@ external dependencies:
   confirmed working; router UDP 51821 port-forward still to be checked/moved by you if it
   exists.
 
-- **NAT to the cellular modem (`enu2`)** - [done] modem hardware physically detached from
-  `pi`, so `pi`'s `enu2` static IP, modem-NAT (`networking.nat`), and `enu2`
-  `trustedInterfaces` config were removed from `hosts/pi/default.nix`. Modem is not yet
-  attached to `ronove` (or anywhere) - `192.168.8.0/24` routing via `pi` in
-  `modules/pihole.nix`'s classless-static-route is stale until the modem is reattached
-  somewhere and that gateway is updated accordingly.
+- **NAT to the cellular modem** - [done] modem physically moved from `pi` to `ronove`.
+  Cold-plugging it exposed a real nixpkgs bug: the packaged `usb_modeswitch` udev rule
+  dispatches to a templated systemd service whose compiled dispatcher binary errors out
+  (Tcl arg-parsing bug) instead of actually switching the HiLink stick out of mass-storage
+  mode. Worked around with a custom udev rule in `hosts/ronove/default.nix` that calls
+  `usb_modeswitch` directly - verified live (mode-switch, interface `enp0s20u10` comes up,
+  modem UI reachable). Added static IP (`192.168.8.100/24`, no gateway) for that interface,
+  plus `networking.nat` (external `enp0s20u10`, internal `enp2s0` + `wg0`) so both LAN and
+  VPN clients get masqueraded to `ronove`'s modem-side IP when reaching it - mirrors what
+  `pi` used to do. `modules/pihole.nix`'s classless-static-route and `hosts/vps/wireguard.nix`
+  (`wg-pi` + `wg-clients`) both updated to route the modem host via `ronove`, using a `/32`
+  (not the full `/24`) sourced from `layout.machines.modem.interfaces.usb.ip` to minimize
+  collision risk with VPN clients' own local networks. Deploy pending on `ronove` + `vps`.
 
 - **pi now uses DHCP for networking** - [done] `pi` no longer statically configures its IP;
   `hosts/pi/default.nix` dropped `networking.useDHCP = false` and the static `end0` address, so
