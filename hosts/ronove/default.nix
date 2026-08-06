@@ -30,7 +30,10 @@ in
   networking.nameservers = [ "127.0.0.1" "1.1.1.1" ];  # Use itself for DNS
 
   boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/sda";
+  # Stable by-id path, not /dev/sda: plain /dev/sdX shifts around based on USB
+  # enumeration order - the HiLink modem's TF-card reader has claimed /dev/sda
+  # before, bumping the real boot disk to /dev/sdb.
+  boot.loader.grub.device = "/dev/disk/by-id/ata-WDC_WD3200LPLX-75ZNTT0_WXD1A65D9SF8";
   boot.loader.grub.useOSProber = true;
 
   # Pegasus NAS disk, physically moved over from `pi`
