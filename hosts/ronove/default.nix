@@ -45,7 +45,13 @@ in
     git
     htop
     tmux
+    usb-modeswitch
   ];
+
+  # HiLink cellular modem (Huawei E353/E3131) enumerates as a mass-storage
+  # device (12d1:1f01) on cold-plug and needs usb_modeswitch to flip it into
+  # modem/CDC-Ethernet mode before it presents a network interface.
+  services.udev.packages = [ pkgs.usb-modeswitch-data ];
 
   system.stateVersion = "25.11";
 }
