@@ -189,8 +189,10 @@ external dependencies:
   `networking.nameservers` override removed too, so `pi` uses the DHCP-announced DNS
   (`ronove`) instead of pointing at itself. Pending your deploy + confirmation.
 
-- **Chrony NTP server** - low risk, no external dependents besides LAN clients pointing at
-  `pi` for time. Can move to `ronove` independently of the above, whenever convenient.
+- **Chrony NTP server** - [done] moved wholesale from `hosts/pi/default.nix` to
+  `hosts/ronove/default.nix` (same config: upstream pool servers, `allow`/`local stratum 10`
+  for the LAN, UDP 123 opened). Not paralleled first like Pi-hole was - low risk enough for a
+  straight cutover. Deploy pending on both hosts (remove from `pi`, add on `ronove`).
 
 - **`strongswan.nix`** (already disabled, kept for rollback) - delete once confident the
   WireGuard-only VPN has been stable for a while. No coordination needed.

@@ -83,5 +83,19 @@ in
     internalInterfaces = [ "enp2s0" "wg0" ];
   };
 
+  # NTP server for the local network, moved over from pi.
+  services.chrony = {
+    enable = true;
+    servers = [
+      "0.nixos.pool.ntp.org"
+      "1.nixos.pool.ntp.org"
+    ];
+    extraConfig = ''
+      allow ${layout.network.prefix}.0/24
+      local stratum 10
+    '';
+  };
+  networking.firewall.allowedUDPPorts = [ 123 ];
+
   system.stateVersion = "25.11";
 }
