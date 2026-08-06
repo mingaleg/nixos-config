@@ -1,5 +1,8 @@
 { config, pkgs, lib, ... }:
 
+let
+  layout = import ../../home-network/layout.nix;
+in
 {
   imports = [
     ./hardware-configuration.nix
@@ -10,9 +13,18 @@
   ];
 
   networking.hostName = "ronove";
-  # IP is assigned via a DHCP static lease reserved on `pi`'s pihole
-  # (see home-network/layout.nix) - no static config needed here.
-  networking.networkmanager.enable = true;
+
+  # Static IP now that ronove runs the DHCP/DNS server itself - can't depend
+  # on DHCP (from itself or anything else) to get an address at boot.
+  networking.useDHCP = false;
+  networking.interfaces.enp2s0 = {
+    ipv4.addresses = [{
+      address = layout.machines.ronove.interfaces.eth.ip;
+      prefixLength = layout.network.prefixLength;
+    }];
+  };
+  networking.defaultGateway = layout.network.defaultGateway;
+  networking.nameservers = [ "127.0.0.1" "1.1.1.1" ];  # Use itself for DNS
 
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";

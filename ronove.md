@@ -74,15 +74,28 @@ Stage 2 status: done
 Stage 3 status: in progress
 ===
 
-- **Pi-hole (DNS + DHCP) - step 1/4 done**: `pihole-ftl`/`pihole-web` config factored out of
-  `hosts/pi/pihole.nix` into a shared `modules/pihole.nix` (takes a `pihole.interface` option
-  for the RA/DHCP interface and a `pihole.dhcpActive` option so only one instance runs DHCP
-  at a time). `hosts/pi/pihole.nix` now just sets `pihole.interface = "end0"` and
-  `pihole.dhcpActive = true` (unchanged behaviour). `hosts/ronove/pihole.nix` added and wired
-  into `hosts/ronove/default.nix`, standing up DNS + web on `ronove` in parallel with
-  `pihole.interface = "enp2s0"` and `pihole.dhcpActive = false` - `pi` remains the sole DHCP
-  server for now. Not yet deployed; deploy and validate DNS resolution against `ronove`
-  before proceeding to the DHCP cutover (step 2 below).
+- **Pi-hole (DNS + DHCP) - step 1/4 done, deployed and validated**: `pihole-ftl`/`pihole-web`
+  config factored out of `hosts/pi/pihole.nix` into a shared `modules/pihole.nix` (takes a
+  `pihole.interface` option for the RA/DHCP interface and a `pihole.dhcpActive` option so only
+  one instance runs DHCP at a time). `hosts/ronove/pihole.nix` added and wired into
+  `hosts/ronove/default.nix`, standing up DNS + web on `ronove` in parallel with
+  `pihole.interface = "enp2s0"`. Validated after deploy: local records resolve correctly
+  (`pi.home.mingalev.net` -> `172.26.249.253` queried from `ronove`), upstream forwarding
+  works, and `ronove.home.mingalev.net` resolves correctly to `172.26.249.251` when queried
+  from another host. (A host's own pihole always resolves its own hostname to loopback when
+  queried from itself - confirmed as a pre-existing dnsmasq quirk present on `pi` too, not a
+  regression; doesn't affect other clients.)
+
+- **Pi-hole DHCP cutover - steps 2-4 done, not yet deployed**: `pihole.dhcpActive` flipped to
+  `false` on `pi` and `true` on `ronove` (`hosts/pi/pihole.nix`, `hosts/ronove/pihole.nix`) -
+  `openFirewallDHCP` in `modules/pihole.nix` follows the same flag, so firewall ports move
+  automatically. Also gave `ronove` a static IP (`hosts/ronove/default.nix`,
+  `networking.useDHCP = false` + static `enp2s0` config mirroring `pi`'s pattern, driven by
+  `home-network/layout.nix`), replacing the old NetworkManager-DHCP setup - now that `ronove`
+  is meant to run the DHCP server, it can't depend on DHCP (from itself or `pi`) to get its
+  own address at boot. No router change needed (step 3 - router is only the default gateway).
+  Step 4 (clients picking up the new server) is automatic once deployed, either on next lease
+  renewal or forced per-device.
 
 Remaining steps (Stage 3+)
 ===
@@ -92,19 +105,9 @@ Remaining steps (Stage 3+)
 These all stay on `pi` for now. Moving each has different blast radius and different
 external dependencies:
 
-- **Pi-hole (DNS + DHCP)** - highest blast radius: every device on the LAN depends on it.
-  Sequencing if/when moved to `ronove`:
-  1. [done, see Stage 3 status above] Stand up `pihole-ftl`/`pihole-web` on `ronove` in
-     parallel (reuse `pi/pihole.nix` almost verbatim - it's already fully driven by
-     `home-network/layout.nix`).
-  2. Disable Pi-hole's DHCP server on `pi`, enable it on `ronove` in the same
-     `nixos-rebuild switch` (or accept a short window with no DHCP server - existing leases
-     keep working until they expire, `leaseTime = "7h"` in `layout.nix`).
-  3. No router change required - the router (`linksys`, `172.26.249.254`) is only the
-     default gateway, not the DHCP/DNS server, so it doesn't need to know which host is
-     running Pi-hole.
-  4. Clients pick up the new DHCP/DNS server automatically on next lease renewal; can force
-     it sooner per-device if needed.
+- **Pi-hole (DNS + DHCP)** - [done, see Stage 3 status above] fully implemented (DNS stood up
+  on `ronove` in parallel, then DHCP cut over from `pi`); pending your deploy + confirmation
+  that clients pick up the new DHCP/DNS server correctly.
 
 - **WireGuard endpoint (`wg0`) + NAT to the cellular modem (`enu2`)** - tightly coupled to
   the HiLink modem being *physically* attached to `pi` (this is `pi`'s CGNAT workaround for

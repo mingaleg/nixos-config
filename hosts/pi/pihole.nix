@@ -4,5 +4,6 @@
   imports = [ ../../modules/pihole.nix ];
 
   pihole.interface = "end0";
-  pihole.dhcpActive = true;
+  # DHCP moved to ronove; pi keeps serving DNS.
+  pihole.dhcpActive = false;
 }
