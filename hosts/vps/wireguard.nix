@@ -1,7 +1,15 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   layout = import ../../home-network/layout.nix;
+
+  # Road-warrior WireGuard peers are auto-derived from any machine in
+  # layout.nix that has a `vpn = { ip; publicKey; }` block.
+  vpnPeers = lib.filterAttrs (_: m: m ? vpn) layout.machines;
+  clientPeers = lib.mapAttrsToList (_: m: {
+    publicKey = m.vpn.publicKey;
+    allowedIPs = [ "${m.vpn.ip}/32" ];
+  }) vpnPeers;
 in
 {
   # Agenix secret for WireGuard private key
@@ -60,29 +68,8 @@ in
       privateKeyFile = config.age.secrets.wireguard-vps-private.path;
       mtu = 1380;
 
-      # Clients will be added here
-      peers = [
-        {
-          # Pixel10
-          publicKey = "WzQNq6q9JlWsTz7L1ejHHII1SFoHYhQAy/XNahwKClU=";
-          allowedIPs = [ "10.100.0.10/32" ];
-        }
-        {
-          # Igor
-          publicKey = "oOkMYPF/12FDQOPcCLWYrW+vCXkivl5LNzqax1U2YE8=";
-          allowedIPs = [ "10.100.0.11/32" ];
-        }
-        {
-          # Tanya
-          publicKey = "QV2Bdze5tUj5Q0JFU4FZeG6RE1G5EaGbx3jFaJCvElg=";
-          allowedIPs = [ "10.100.0.12/32" ];
-        }
-        {
-          # mingamini
-          publicKey = "TpXIsf+dtUrSj9zI9+yYs35C/k4lTmzJwbYaIIw9WBY=";
-          allowedIPs = [ "10.100.0.80/32" ];
-        }
-      ];
+      # Auto-derived from layout.nix - see vpnPeers/clientPeers above.
+      peers = clientPeers;
 
       # Route client traffic to home network through the ronove tunnel
       # (|| true makes it non-fatal if ronove isn't connected yet)

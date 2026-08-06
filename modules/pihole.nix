@@ -3,19 +3,23 @@
 let
   layout = import ../home-network/layout.nix;
 
+  # Machines without a LAN `interfaces` block (e.g. VPN-only roamers) don't
+  # participate in DNS/DHCP host generation below.
+  lanMachines = lib.filterAttrs (_: m: m ? interfaces) layout.machines;
+
   # Generate DNS host entries: "IP FQDN shortname" (one entry per interface)
   dnsHosts = lib.concatLists (lib.mapAttrsToList (name: m:
     lib.mapAttrsToList (_ifaceName: iface:
       "${iface.ip} ${name}.${layout.domain} ${name}"
     ) m.interfaces
-  ) layout.machines);
+  ) lanMachines);
 
   # Generate DHCP static leases for all interfaces with MAC addresses: "MAC,IP,hostname"
   dhcpHosts = lib.concatLists (lib.mapAttrsToList (name: m:
     lib.mapAttrsToList (_ifaceName: iface:
       "${iface.mac},${iface.ip},${name}"
     ) (lib.filterAttrs (_: iface: iface ? mac) m.interfaces)
-  ) layout.machines);
+  ) lanMachines);
 
   # Build a DHCP option 121 (classless static route) value from a list of
   # { destination, gateway } pairs, e.g. { destination = "10.200.0.0/24"; gateway = ...; }.

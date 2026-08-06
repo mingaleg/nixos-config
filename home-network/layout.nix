@@ -47,13 +47,20 @@ let
         ip = ip 12;
         mac = "06:e0:4c:6a:00:04";
       };
-      interfaces.vpn.ip = vpnIp 80;
+      vpn = {
+        ip = vpnIp 80;
+        publicKey = "TpXIsf+dtUrSj9zI9+yYs35C/k4lTmzJwbYaIIw9WBY=";
+      };
     };
 
     pixel10 = {
       interfaces.wlan = {
         ip = ip 50;
         mac = "b0:d5:fb:b7:b9:22";
+      };
+      vpn = {
+        ip = vpnIp 10;
+        publicKey = "WzQNq6q9JlWsTz7L1ejHHII1SFoHYhQAy/XNahwKClU=";
       };
     };
 
@@ -94,6 +101,20 @@ let
     modem = {
       interfaces.usb = {
         ip = "192.168.8.1";
+      };
+    };
+
+    # Roamers
+    igor = {
+      vpn = {
+        ip = vpnIp 11;
+        publicKey = "oOkMYPF/12FDQOPcCLWYrW+vCXkivl5LNzqax1U2YE8=";
+      };
+    };
+    tanya = {
+      vpn = {
+        ip = vpnIp 12;
+        publicKey = "QV2Bdze5tUj5Q0JFU4FZeG6RE1G5EaGbx3jFaJCvElg=";
       };
     };
   };
