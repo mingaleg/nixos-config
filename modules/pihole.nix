@@ -4,15 +4,16 @@ let
   layout = import ../home-network/layout.nix;
 
   # Machines without a LAN `interfaces` block (e.g. VPN-only roamers) don't
-  # participate in DNS/DHCP host generation below.
+  # get DHCP leases (DHCP doesn't apply to them - see dhcpHosts below).
   lanMachines = lib.filterAttrs (_: m: m ? interfaces) layout.machines;
 
-  # Generate DNS host entries: "IP FQDN shortname" (one entry per interface)
+  # Generate DNS host entries: "IP FQDN shortname" (one entry per interface,
+  # plus a "vpn" pseudo-interface for machines with a vpn.ip)
   dnsHosts = lib.concatLists (lib.mapAttrsToList (name: m:
     lib.mapAttrsToList (_ifaceName: iface:
       "${iface.ip} ${name}.${layout.domain} ${name}"
-    ) m.interfaces
-  ) lanMachines);
+    ) ((m.interfaces or { }) // (lib.optionalAttrs (m ? vpn) { vpn = m.vpn; }))
+  ) layout.machines);
 
   # Generate DHCP static leases for all interfaces with MAC addresses: "MAC,IP,hostname"
   dhcpHosts = lib.concatLists (lib.mapAttrsToList (name: m:
