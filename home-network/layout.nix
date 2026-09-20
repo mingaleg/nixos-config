@@ -53,6 +53,13 @@ let
       };
     };
 
+    work = {
+      interfaces.eth = {
+        ip = ip 20;
+        mac = "a8:72:4d:32:4d:6c";
+      };
+    };
+
     pixel10 = {
       interfaces.wlan = {
         ip = ip 50;
