@@ -4,6 +4,7 @@
   imports = [
     "${modulesPath}/virtualisation/google-compute-image.nix"
     ../../modules/core-server
+    ../../modules/hosts-file.nix
     ./wireguard.nix
     ./murmur.nix
     ./ttyd.nix

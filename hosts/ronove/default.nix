@@ -7,6 +7,7 @@ in
   imports = [
     ./hardware-configuration.nix
     ../../modules/core-server
+    ../../modules/hosts-file.nix
     ../../modules/network-tuning.nix
     ./nginx-www.nix
     ./samba-server.nix
