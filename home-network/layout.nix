@@ -58,10 +58,14 @@ let
       };
     };
 
-    work = {
+    x1c-oleg = {
       interfaces.eth = {
         ip = ip 20;
         mac = "a8:72:4d:32:4d:6c";
+      };
+      vpn = {
+        ip = vpnIp 13;
+        publicKey = "WC5bXBbQNX1XQTdQMSxto7t7w5kzI06J/TQ+QdNqsCA=";
       };
     };
 

@@ -58,6 +58,8 @@ Current IP assignments:
   10 - pixel10
   11 - igor
   12 - tanya
+  13 - x1c-oleg
+  80 - mingamini
 EOF
     exit 1
 }
