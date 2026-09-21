@@ -3,39 +3,15 @@
 {
   imports = [
     "${modulesPath}/virtualisation/google-compute-image.nix"
+    ../../modules/core-server
     ./wireguard.nix
     ./murmur.nix
   ];
 
   networking.hostName = "vps";
 
-  # User configuration
-  users.users.mingaleg = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" ];
-    openssh.authorizedKeys.keys = [
-      (builtins.readFile ../../ssh-keys/mingaleg-masterkey.pub)
-    ];
-  };
-
-  # SSH
-  services.openssh = {
-    enable = true;
-    settings.PermitRootLogin = "no";
-    settings.PasswordAuthentication = false;
-  };
-
-  # Agenix
-  age.identityPaths = [ "/root/.ssh/agenix-hosts" ];
-
   # Disable Google OS Login (we're using standard SSH keys)
   security.googleOsLogin.enable = lib.mkForce false;
-
-  # Allow wheel group sudo access without password
-  security.sudo.wheelNeedsPassword = false;
-
-  # Trust mingaleg for remote Nix operations
-  nix.settings.trusted-users = [ "root" "mingaleg" ];
 
   # Basic packages
   environment.systemPackages = with pkgs; [
@@ -69,7 +45,13 @@
     '';
   };
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  time.timeZone = "Europe/London";
+  # 10GB GCE disk with the ext4 default of 640k inodes: the journal grew to
+  # 971MB across 28 files and, together with 14 uncollected system generations,
+  # exhausted the inode table - `nixos-rebuild` then died in Python's
+  # gettempdir() and even `nix-collect-garbage` could not create its lock file.
+  # Generation GC comes from core-server; cap the journal here because the
+  # right size depends on the host's disk.
+  services.journald.extraConfig = "SystemMaxUse=200M";
+
   system.stateVersion = "25.11";
 }
