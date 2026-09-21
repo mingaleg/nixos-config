@@ -6,6 +6,7 @@
     ../../modules/core-server
     ./wireguard.nix
     ./murmur.nix
+    ./ttyd.nix
   ];
 
   networking.hostName = "vps";

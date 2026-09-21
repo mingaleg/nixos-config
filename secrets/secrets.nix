@@ -14,4 +14,7 @@ wireguardSecrets // {
 
   # CIFS credentials for mounting //ronove/pegasus
   "smb-credentials-pegasus.age".publicKeys = [ mingaleg allHosts ];
+
+  # HTTP basic-auth password for the ttyd web terminal on vps
+  "ttyd-password.age".publicKeys = [ mingaleg allHosts ];
 }
