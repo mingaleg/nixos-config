@@ -28,6 +28,43 @@ let
   classlessStaticRoutes = routes:
     "dhcp-option=option:classless-static-route,"
     + lib.concatStringsSep "," (lib.concatMap (r: [ r.destination r.gateway ]) routes);
+
+  # `services.pihole-ftl.lists` is not idempotent on this channel. The generated
+  # pihole-ftl-setup script POSTs every declared list to FTL's API and treats any
+  # API error as fatal, but the adlist row a successful POST writes lives in
+  # gravity.db and outlives reboots - so from the second start onwards FTL
+  # answers "The item is already present" and the oneshot exits 1. pihole-ftl
+  # `wants` that unit, so it is a permanently failed unit (and a non-zero
+  # `nixos-rebuild switch`) for a declaration that is already satisfied.
+  #
+  # Fixed upstream in nixpkgs PR #551979, merged to master 2026-08-16 but not
+  # backported to release-26.05. Cherry-pick the same guard here; `needsSetupPatch`
+  # turns this into a no-op once the channel carries the fix, at which point the
+  # whole block can be deleted.
+  setupScriptModule = "${pkgs.path}/nixos/modules/services/networking/pihole-ftl-setup-script.nix";
+
+  upstreamSetupScript = import setupScriptModule {
+    inherit config lib pkgs;
+    cfg = config.services.pihole-ftl;
+  };
+
+  # Anchored on the single line that extracts the API error, so the guard lands
+  # in front of the blanket "any error is fatal" branch that follows it.
+  errorProbe = ''error="$($jq '.error' <<< "$result")"'';
+
+  idempotentErrorProbe = ''
+    error="$($jq '.error' <<< "$result")"
+    if $jq -e '.error.key == "database_error" and .error.hint == "The item is already present"' <<< "$result" > /dev/null; then
+        echo "List already present"
+        return
+    fi'';
+
+  patchedSetupScript =
+    builtins.replaceStrings [ errorProbe ] [ idempotentErrorProbe ] upstreamSetupScript;
+
+  needsSetupPatch =
+    builtins.pathExists setupScriptModule
+    && !(lib.hasInfix "already present" upstreamSetupScript);
 in
 {
   options.pihole = {
@@ -131,6 +168,22 @@ in
         }
       ];
     };
+
+    # See `needsSetupPatch` above - re-adding an already-registered blocklist is
+    # a no-op, not a failure. Every other API error still fails the unit.
+    systemd.services.pihole-ftl-setup.script =
+      lib.mkIf needsSetupPatch (lib.mkForce patchedSetupScript);
+
+    assertions = [
+      {
+        assertion = !needsSetupPatch || patchedSetupScript != upstreamSetupScript;
+        message = ''
+          modules/pihole.nix: pihole-ftl-setup's addList no longer contains the
+          error probe this module patches, but it also lacks the upstream
+          idempotency fix - re-check the setup script in nixpkgs.
+        '';
+      }
+    ];
 
     # Disable systemd-resolved DNS stub listener to avoid port 53 conflict.
     # This module is shared across hosts on different nixpkgs channels:
