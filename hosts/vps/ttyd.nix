@@ -22,11 +22,15 @@
     # The module deliberately has no default here, to force a decision.
     writeable = true;
 
-    # `entrypoint` stays at its default (shadow's `login`): the agenix password
-    # only gets you as far as a login prompt, and mingaleg's system password is
-    # a second, independent gate. Worth keeping on an internet-facing host.
-    # For a shell straight away instead, set user = "mingaleg" and
-    # entrypoint = [ "${pkgs.bashInteractive}/bin/bash" ].
+    # The default entrypoint is a bare `login`, which cannot work here: mingaleg
+    # authenticates by SSH key and has no password to type. `-f` tells login to
+    # skip authentication and open a session for the named user directly, so the
+    # HTTP basic-auth password above is the only gate - a full PAM login session
+    # (utmp, motd, user systemd session) is still set up, which `su` or a raw
+    # bash entrypoint would not give. ttyd stays running as root because only
+    # root may use `login -f`.
+
+    entrypoint = [ "${pkgs.shadow}/bin/login" "-f" "mingaleg" ];
 
     # Reject websocket upgrades whose Origin does not match the Host header.
     checkOrigin = true;
