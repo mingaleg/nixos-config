@@ -18,6 +18,9 @@ let
     };
   };
 
+  # `primary = true` marks which interface a multi-homed machine's bare name
+  # points at; every interface is additionally addressable as <host>-<iface>.
+  # Machines with a single interface don't need it. See modules/hosts-file.nix.
   machines = {
     mingapred = {
       interfaces = {
@@ -28,6 +31,7 @@ let
         eth = { # usb dongle
           ip = ip 2;
           mac = "6c:1f:f7:19:86:5d";
+          primary = true;
         };
       };
     };
@@ -42,6 +46,7 @@ let
       interfaces.wlan = {
         ip = ip 11;
         mac = "f4:7b:09:f7:f0:1c";
+        primary = true;
       };
       interfaces.eth = {
         ip = ip 12;
