@@ -61,6 +61,11 @@ in
   # when pihole is down, being rebuilt, or (on vps) simply not the resolver.
   # This is not a replacement for DNS: it is only authoritative for the machines
   # declared in home-network/layout.nix.
+  #
+  # The overlap with modules/pihole.nix's `dnsHosts` is deliberate, not drift:
+  # DNS should keep answering a multi-homed name with *all* of its addresses,
+  # and only the hosts that cannot fall back on DNS pay the price of picking a
+  # primary. Don't unify the two generators.
   networking.hosts = lib.mkMerge entries;
 
   assertions = [
