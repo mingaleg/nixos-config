@@ -48,34 +48,55 @@ nix build .#images.foreign-agent-recovery --builders 'ssh://<aarch64-host> aarch
 scripts/make-foreign-agent-recovery.sh [--image <out>/sd-image/*.img.zst] /dev/sdX
 ```
 
+EEPROM setup (once per Pi)
+---
+
+The recovery stick only works if the Pi's bootloader EEPROM says so. These settings live on the
+EEPROM chip, not the SD card, so they survive reflashes and deploys and are deliberately not in
+the nix config. Redo them on any replacement Pi:
+
+- `BOOT_ORDER=0xf14`: try USB first, then SD.
+- `PSU_MAX_CURRENT=5000`: a Pi 5 on a supply that doesn't advertise 5A (anything but the
+  official 27W PSU; pi's negotiates 3A) silently skips USB boot. This tells the bootloader to
+  treat the supply as 5A-capable. It also raises the USB ports' total current limit from 600mA
+  to 1.6A, which is fine with only the stick attached.
+
+```
+nix shell nixpkgs#raspberrypi-eeprom
+sudo rpi-eeprom-config > boot.conf     # edit/add the two lines above
+sudo BOOTFS=/boot/firmware rpi-eeprom-config --apply boot.conf \
+  <raspberrypi-eeprom>/lib/firmware/raspberrypi/bootloader-2712/default/pieeprom-<date>.bin
+sudo reboot
+```
+
+On a Pi 5 this flashes immediately via flashrom (`VERIFY: SUCCESS`). Applying a config always
+writes a whole bootloader image; give the `default` (stable) one explicitly. pi went from
+2024-09-23 to 2025-11-05 this way.
+
 Migration from `pi`
 ---
 
-Status: code written and `nix flake check --no-build` passes. Nothing below is deployed yet.
+Status (2026-10-30): done and verified at home, not yet shipped.
 
-1. Deploy `vps`, so it knows the new peer. Optionally deploy `ronove`, which drops `pi`'s DHCP
-   reservation and DNS records.
-2. On the old `pi`, still at home, set the boot order and reboot once. It should still come up
-   from SD:
-   ```
-   nix shell nixpkgs#raspberrypi-eeprom
-   sudo rpi-eeprom-config > boot.conf     # set BOOT_ORDER=0xf14
-   sudo BOOTFS=/boot/firmware rpi-eeprom-config --apply boot.conf
-   sudo reboot
-   ```
-3. Build the recovery image on an aarch64 builder. The old `pi` itself works while it is still
-   running. Then write the stick with `scripts/make-foreign-agent-recovery.sh`.
-4. Do the first install **with the stick**. This tests the break-glass path and wipes the
-   fleet-wide `agenix-hosts` key that is still on the old SD card. The sequence: insert stick →
-   power on → wait for power-off → remove stick → power on.
-5. Verify at home before shipping:
-   - **Ethernet**: `ssh foreign-agent` works; `wg show wg-clients` on vps shows a handshake.
-   - **Wi-Fi**: unplug the cable → it joins `mingahome` and SSH recovers within about a minute.
-   - **Hot-plug**: insert the stick into the running box (uptime over 5 min) → it reboots into
-     recovery → it powers off.
-   - **Coldplug guard**: boot with a disarmed stick (rename `config.txt` on `FA_RECFW`) → it
-     does not reboot-loop.
-6. Ship with the stick and the printed Russian instructions.
+- vps and ronove deployed. ronove no longer reserves pi's old `172.26.249.251`.
+- EEPROM set up as above (2025-11-05 bootloader).
+- Recovery image built on mingamini (aarch64 via binfmt). Stick written: a Transcend 4GB.
+- First install done **with the stick**: about 12 min, mostly the SD card's ~5MB/s writes. This
+  also wiped the fleet-wide `agenix-hosts` key from the old SD card.
+- Verified after the reinstall:
+  - Host key unchanged, and the secrets decrypt.
+  - On ethernet: tunnel up, vps sees handshakes.
+  - Wi-Fi works with only the Pi's own firmware blob. With a fake `Solnd082` present it
+    prefers that over `mingahome`, and is reachable as `foreign-agent` over the VPN.
+- Not tested: hot-plug reset (inserting the stick into a running box), and the coldplug guard.
+
+Known quirk while it sits on the home LAN: home-LAN clients can't reach it over the VPN
+(`ssh foreign-agent` times out). Their source address is on its `end0` subnet, so the NixOS
+reverse-path filter drops those packets when they arrive on `wg-home`. Use its LAN address at
+home. It doesn't occur on any other network.
+
+Left before shipping: print `docs/foreign-agent-recovery-ru.html`, write your number on it, and
+pack it with the stick.
 
 TODO once on site
 ---
