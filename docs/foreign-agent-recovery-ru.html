@@ -1,0 +1,215 @@
+<meta charset="utf-8">
+<title>Коробочка Олега</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@700&display=swap">
+<style>
+  /* A printed sheet: one paper look in every theme, by choice. */
+  :root {
+    --paper: #fbfaf7;
+    --ink: #1c2330;
+    --muted: #5a6272;
+    --rule: #d9d5cc;
+    --accent: #1f4e8c;
+    --warn-bg: #fbeee8;
+    --warn: #8a2f12;
+    --led-green: #2fb24c;
+    --led-red: #d6342a;
+    --led-off: #c9ccd1;
+    color-scheme: light;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 18px/1.5 "PT Sans", "Helvetica Neue", Arial, sans-serif;
+  }
+  .sheet {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 28px 40px;
+    display: grid;
+    gap: 22px;
+  }
+  h1, h2 {
+    font-family: "PT Serif", Georgia, "Times New Roman", serif;
+    text-wrap: balance;
+    margin: 0;
+  }
+  h1 { font-size: 2rem; line-height: 1.15; }
+  h2 { font-size: 1.3rem; color: var(--accent); }
+  p { margin: 0; }
+  section { display: grid; gap: 10px; }
+  .lede { font-size: 1.1rem; color: var(--muted); }
+  .rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+
+  .callout {
+    background: var(--warn-bg);
+    color: var(--warn);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-weight: 700;
+  }
+
+  ol.steps {
+    list-style: none;
+    counter-reset: step;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+  }
+  ol.steps > li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 2.4rem 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+  ol.steps > li::before {
+    content: counter(step);
+    font: 700 1.3rem/2.4rem "PT Serif", Georgia, serif;
+    width: 2.4rem;
+    height: 2.4rem;
+    text-align: center;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .step-body { display: grid; gap: 6px; padding-top: 4px; }
+  .step-body strong { font-size: 1.1rem; }
+
+  .led {
+    display: inline-block;
+    width: 0.8em;
+    height: 0.8em;
+    border-radius: 50%;
+    vertical-align: -0.05em;
+    margin-right: 0.25em;
+    border: 1px solid rgba(0,0,0,.2);
+  }
+  .led.green { background: var(--led-green); }
+  .led.red { background: var(--led-red); }
+  .led.off { background: var(--led-off); }
+  .led.blink { animation: blink 1s steps(2, start) infinite; }
+  .led.beat { animation: beat 1.4s infinite; }
+  @keyframes blink { to { background: var(--led-off); } }
+  @keyframes beat {
+    0%, 10%, 20%, 30% { background: var(--led-green); }
+    5%, 15%, 30.01%, 100% { background: var(--led-off); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .led.blink, .led.beat { animation: none; }
+  }
+
+  .signal {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px 14px;
+    margin: 0;
+  }
+  .signal dt { white-space: nowrap; font-weight: 700; }
+  .signal dd { margin: 0; }
+
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: baseline;
+    font-size: 1.15rem;
+  }
+  .blank {
+    flex: 1 1 12rem;
+    border-bottom: 1.5px solid var(--ink);
+    min-height: 1.6em;
+  }
+
+  @media (max-width: 480px) {
+    body { font-size: 17px; }
+    h1 { font-size: 1.6rem; }
+    .signal { grid-template-columns: 1fr; gap: 2px 0; }
+    .signal dd { margin-bottom: 8px; }
+  }
+
+  @page { size: A4; margin: 14mm 16mm; }
+  @media print {
+    body { font-size: 12.5pt; background: #fff; }
+    .sheet { padding: 0; gap: 14px; max-width: none; }
+    h1 { font-size: 21pt; }
+    h2 { font-size: 14pt; }
+    .led { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .callout, ol.steps > li::before { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+
+<main class="sheet">
+  <header style="display:grid;gap:8px">
+    <h1>Коробочка Олега</h1>
+    <p class="lede">Маленький компьютер Raspberry Pi. Через него Олег может из дома помогать с вашим интернетом и техникой. Коробочка работает сама, ничего нажимать не нужно.</p>
+  </header>
+
+  <section>
+    <h2>Как она подключена</h2>
+    <p>Шнур питания в розетке. Если можно, сетевой кабель идёт от коробочки к роутеру. Без кабеля коробочка сама подключится к домашнему Wi-Fi.</p>
+    <p>Выключать её не нужно. Если она мешает или её надо переставить, просто выньте шнур питания, а потом вставьте обратно.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <h2>Флешка «Восстановление»</h2>
+    <p class="callout">Пользуйтесь флешкой только если Олег попросил. Она стирает коробочку и ставит всё заново. Храните её рядом с этим листом, не в коробочке.</p>
+
+    <ol class="steps">
+      <li>
+        <div class="step-body">
+          <strong>Вставьте флешку в коробочку.</strong>
+          <p>Подойдёт любой разъём USB, синий или чёрный.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Выньте шнур питания и вставьте его обратно.</strong>
+          <p>Так коробочка начнёт восстановление с флешки.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Подождите, ничего не трогая.</strong>
+          <p><span class="led green blink" aria-hidden="true"></span>Зелёная лампочка ровно мигает: идёт восстановление. Обычно это 5–15 минут. Не вынимайте флешку и шнур.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Коробочка выключится сама.</strong>
+          <p><span class="led off" aria-hidden="true"></span>Зелёная погасла, <span class="led red" aria-hidden="true"></span>горит только красная: всё готово.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Выньте флешку, потом выньте и вставьте шнур питания.</strong>
+          <p>Коробочка включится как обычно. Через 5 минут позвоните Олегу и скажите, что готово. Флешку уберите на место.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Если что-то не так</h2>
+    <dl class="signal">
+      <dt><span class="led green beat" aria-hidden="true"></span>Мигает двойными вспышками</dt>
+      <dd>Восстановление не получилось. Ничего не выключайте и позвоните Олегу.</dd>
+      <dt><span class="led red" aria-hidden="true"></span>Только красная, а вы ничего не делали</dt>
+      <dd>Коробочка выключена. Проверьте, не осталась ли в ней флешка, и выньте и вставьте шнур питания.</dd>
+      <dt><span class="led off" aria-hidden="true"></span>Ничего не горит</dt>
+      <dd>Нет питания. Проверьте розетку и шнур.</dd>
+    </dl>
+  </section>
+
+  <hr class="rule">
+
+  <div class="contact">
+    <span>Олег:</span>
+    <span class="blank" aria-label="место для номера телефона"></span>
+  </div>
+</main>

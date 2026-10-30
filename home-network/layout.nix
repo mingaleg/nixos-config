@@ -93,12 +93,6 @@ let
         mac = "e4:18:6b:28:a0:70";
       };
     };
-    pi = {
-      interfaces.eth = {
-        ip = ip 251;
-        mac = "2c:cf:67:cc:55:39";
-      };
-    };
     ronove = {
       interfaces.eth = {
         ip = ip 253;
@@ -112,7 +106,7 @@ let
       };
     };
 
-    # This one is special -- it lives in its own network shared with pi
+    # This one is special -- it lives in its own network shared with ronove
     # Does not need DHCP, but we still define the host for DNS.
     modem = {
       interfaces.usb = {
@@ -131,6 +125,15 @@ let
       vpn = {
         ip = vpnIp 12;
         publicKey = "QV2Bdze5tUj5Q0JFU4FZeG6RE1G5EaGbx3jFaJCvElg=";
+      };
+    };
+
+    # Ex-pi, living at Igor and Tanya's house. It dials out to vps, so it only
+    # has a VPN address here - whatever LAN it sits on isn't ours to reserve.
+    foreign-agent = {
+      vpn = {
+        ip = vpnIp 33;
+        publicKey = "W13QNPEjrS0qzNSUHQO2mZ9csIkBVyFzT8dl/UT0FDg=";
       };
     };
   };

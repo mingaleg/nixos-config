@@ -71,8 +71,10 @@
           ];
         };
 
-        # Raspberry Pi 5 - running system
-        "pi" = nixos-raspberrypi.lib.nixosSystem {
+        # Raspberry Pi 5 (ex-pi) at Igor and Tanya's house. Includes the
+        # sd-image module so images.foreign-agent builds the exact system the
+        # recovery stick flashes.
+        "foreign-agent" = nixos-raspberrypi.lib.nixosSystem {
           specialArgs = inputs;
           modules = [
             {
@@ -80,15 +82,16 @@
                 raspberry-pi-5.base
                 raspberry-pi-5.page-size-16k
                 raspberry-pi-5.display-vc4
+                sd-image
               ];
             }
             agenix.nixosModules.default
-            ./hosts/pi
+            ./hosts/foreign-agent
           ];
         };
 
-        # Raspberry Pi 5 - SD image installer
-        "pi-installer" = nixos-raspberrypi.lib.nixosInstaller {
+        # Break-glass USB stick: boots, reflashes foreign-agent's SD card, powers off
+        "foreign-agent-recovery" = nixos-raspberrypi.lib.nixosSystem {
           specialArgs = inputs;
           modules = [
             {
@@ -96,10 +99,10 @@
                 raspberry-pi-5.base
                 raspberry-pi-5.page-size-16k
                 raspberry-pi-5.display-vc4
+                sd-image
               ];
             }
-            agenix.nixosModules.default
-            ./hosts/pi
+            ./hosts/foreign-agent-recovery
           ];
         };
 
@@ -132,7 +135,8 @@
         };
       };
 
-      # SD image output
-      images.pi = self.nixosConfigurations.pi-installer.config.system.build.sdImage;
+      # SD image outputs (aarch64 - need an aarch64 builder)
+      images.foreign-agent = self.nixosConfigurations.foreign-agent.config.system.build.sdImage;
+      images.foreign-agent-recovery = self.nixosConfigurations.foreign-agent-recovery.config.system.build.sdImage;
     };
 }

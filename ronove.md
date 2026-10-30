@@ -204,6 +204,7 @@ external dependencies:
 
 ### 2. Final pi decommission
 
-Once Pi-hole and (if ever) the VPN/NAT/modem role have moved off, `pi` can be powered down.
-Until then it remains the home network's DNS/DHCP/VPN/NAT appliance - do not remove those
-roles from `hosts/pi` until their replacements are confirmed stable on `ronove`.
+[done] All of `pi`'s home-network roles live on `ronove`. Rather than powering it down, `pi` is
+repurposed as `foreign-agent` (a VPN foothold at Igor and Tanya's house): `hosts/pi` became
+`hosts/foreign-agent`, and its `layout.nix` LAN entry (DHCP reservation `172.26.249.251`) is
+replaced by a VPN-only entry. See foreign-agent.md.
