@@ -36,7 +36,11 @@ however badly a deploy went.
   (`hosts/foreign-agent/recovery.nix`). The uptime guard stops a coldplug reboot loop if USB
   boot ever falls through to SD.
 - The stick restores the config **as of when the stick was written**. After a reset, redeploy
-  the current config with `./deploy_remote foreign-agent`. Rewrite the stick whenever a change
+  the current config with `./deploy_remote foreign-agent`.
+- For changes that could cut off access (networking, WireGuard, SSH, firewall), deploy with
+  `./deploy_remote --test foreign-agent` first. That activates the change without making it the
+  boot default, so if it breaks access, a power cycle by Igor or Tanya brings back the previous
+  generation. Run it again without `--test` once confirmed. Rewrite the stick whenever a change
   matters for reachability (VPN, Wi-Fi, SSH).
 - Instructions for Igor and Tanya, in Russian: `docs/foreign-agent-recovery-ru.html` (print it,
   keep it with the stick).

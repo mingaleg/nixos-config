@@ -2,7 +2,18 @@
 
 set -e
 
+# Usage: ./deploy_remote [--test] <flake> [host]
+#
+# --test activates the new config without making it the boot default, so a
+# change that cuts off remote access is undone by a power cycle. Re-run without
+# --test once it's confirmed working.
+ACTION=switch
+if [ "$1" = "--test" ]; then
+    ACTION=test
+    shift
+fi
+
 FLAKE=$1
 HOST=${2:-$FLAKE}
 
-nixos-rebuild switch --flake .#${FLAKE} --target-host ${HOST} --sudo --ask-sudo-password
+nixos-rebuild ${ACTION} --flake .#${FLAKE} --target-host ${HOST} --sudo --ask-sudo-password
