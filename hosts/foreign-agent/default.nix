@@ -39,7 +39,7 @@
   environment.systemPackages = with pkgs; [
     vim htop tmux curl
     ethtool iproute2 usbutils
-    wireguard-tools
+    wireguard-tools nmap
   ];
 
   # Nobody on site can press a reset button for us: let the hardware watchdog
