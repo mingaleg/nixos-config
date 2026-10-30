@@ -12,11 +12,25 @@
 let
   target = "/dev/mmcblk0";
   fa = self.nixosConfigurations.foreign-agent.config;
-  payload = "${fa.system.build.sdImage}/${fa.image.filePath}";
+  # The compressed image, stored so that it does not drag foreign-agent's
+  # whole system closure (~2.5GiB, uncompressed) onto the stick. Copying the
+  # file alone is not enough: zstd keeps each store path's first occurrence as
+  # a literal, so nix's reference scanner still finds every hash. Swapping
+  # letter case hides them (store hashes are lowercase) and is its own inverse,
+  # so the reflash just swaps back while streaming.
+  swapCase = "tr a-zA-Z A-Za-z";
+  payload = pkgs.runCommand "foreign-agent-sd-image.img.zst.swapcase" {
+    allowedReferences = [ ];
+  } ''
+    ${swapCase} < ${fa.system.build.sdImage}/${fa.image.filePath} > $out
+  '';
   keyDir = "/recovery";
 in
 {
-  imports = [ ../../modules/core-common ];
+  imports = [
+    ../../modules/core-common
+    ../../modules/rpi-slim.nix
+  ];
 
   networking.hostName = "foreign-agent-recovery";
 
@@ -28,6 +42,9 @@ in
     firmwarePartitionID = lib.mkForce "0x5ec0e7a1";
     rootPartitionUUID = "fa0fa0fa-4a00-4c0e-8e0f-0000000000fa";
     expandOnBoot = false;
+    # nixos-raspberrypi sizes this for many kernel generations; the stick only
+    # ever has one.
+    firmwareSize = lib.mkForce 256;
   };
 
   boot.initrd.availableKernelModules = [ "usb_storage" "uas" ];
@@ -71,7 +88,7 @@ in
       led timer
       echo "Writing ${payload} to ${target}"
       umount ${target}p* 2>/dev/null || true
-      zstdcat ${payload} | dd of=${target} bs=4M iflag=fullblock conv=fsync status=none
+      ${swapCase} < ${payload} | zstdcat | dd of=${target} bs=4M iflag=fullblock conv=fsync status=none
       blockdev --rereadpt ${target}
       udevadm settle
 
