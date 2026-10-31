@@ -3,9 +3,9 @@
 {
   imports = [ ./home.nix ];
 
-  programs.ssh.matchBlocks."github" = {
-    host = "github.com";
-    identityFile = "~/.ssh/mingaleg-1password";
+  programs.ssh.settings."github" = {
+    header = "Host github.com";
+    IdentityFile = "~/.ssh/mingaleg-1password";
   };
 
   # Create rclone mount directories

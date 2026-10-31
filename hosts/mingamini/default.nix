@@ -65,12 +65,12 @@
   # Rotate touchscreen to match display rotation and configure touchpad scrolling
   services.xserver.displayManager.sessionCommands = ''
     # Rotate touchscreen to match display rotation
-    ${pkgs.xorg.xinput}/bin/xinput set-prop "GXTP7380:00 27C6:0113" "Coordinate Transformation Matrix" 0 1 0 -1 0 1 0 0 1
+    ${pkgs.xinput}/bin/xinput set-prop "GXTP7380:00 27C6:0113" "Coordinate Transformation Matrix" 0 1 0 -1 0 1 0 0 1
 
     # Enable button scrolling on HAILUCK touchpad (middle button)
-    ${pkgs.xorg.xinput}/bin/xinput set-prop "HAILUCK CO.,LTD USB KEYBOARD Mouse" "libinput Scroll Method Enabled" 0 0 1
-    ${pkgs.xorg.xinput}/bin/xinput set-prop "HAILUCK CO.,LTD USB KEYBOARD Mouse" "libinput Button Scrolling Button" 2
-    ${pkgs.xorg.xinput}/bin/xinput set-prop "HAILUCK CO.,LTD USB KEYBOARD Mouse" "libinput Middle Emulation Enabled" 0
+    ${pkgs.xinput}/bin/xinput set-prop "HAILUCK CO.,LTD USB KEYBOARD Mouse" "libinput Scroll Method Enabled" 0 0 1
+    ${pkgs.xinput}/bin/xinput set-prop "HAILUCK CO.,LTD USB KEYBOARD Mouse" "libinput Button Scrolling Button" 2
+    ${pkgs.xinput}/bin/xinput set-prop "HAILUCK CO.,LTD USB KEYBOARD Mouse" "libinput Middle Emulation Enabled" 0
   '';
 
   # Enable sound with pipewire.

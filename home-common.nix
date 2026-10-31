@@ -64,25 +64,25 @@ in
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks = {
+    # Blocks are ordered by attribute name; `header` keeps those names stable
+    # while the Host patterns themselves stay free-form.
+    settings = {
       "home-canonicalize" = {
-        host = "* !*.* !localhost";
-        extraOptions = {
-          CanonicalDomains = layout.domain;
-          CanonicalizeHostname = "yes";
-          CanonicalizeFallbackLocal = "no";
-        };
+        header = "Host * !*.* !localhost";
+        CanonicalDomains = layout.domain;
+        CanonicalizeHostname = true;
+        CanonicalizeFallbackLocal = false;
       };
       "home-identity" = {
-        host = "*.${layout.domain}";
-        identityFile = "~/.ssh/mingaleg-masterkey";
-        identitiesOnly = true;
-        addressFamily = "inet";
+        header = "Host *.${layout.domain}";
+        IdentityFile = "~/.ssh/mingaleg-masterkey";
+        IdentitiesOnly = true;
+        AddressFamily = "inet";
       };
       "home-gw" = {
-        hostname = "home-gw.mingalev.net";
-        identityFile = "~/.ssh/mingaleg-masterkey";
-        identitiesOnly = true;
+        HostName = "home-gw.mingalev.net";
+        IdentityFile = "~/.ssh/mingaleg-masterkey";
+        IdentitiesOnly = true;
       };
     };
   };

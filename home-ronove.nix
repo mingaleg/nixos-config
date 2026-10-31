@@ -3,8 +3,8 @@
 {
   imports = [ ./home-server.nix ];
 
-  programs.ssh.matchBlocks."github" = {
-    host = "github.com";
-    identityFile = "~/.ssh/mingaleg-masterkey";
+  programs.ssh.settings."github" = {
+    header = "Host github.com";
+    IdentityFile = "~/.ssh/mingaleg-masterkey";
   };
 }
