@@ -102,7 +102,7 @@
                 sd-image
               ];
             }
-            ./hosts/foreign-agent-recovery
+            ./hosts/foreign-agent/recovery-stick
           ];
         };
 

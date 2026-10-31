@@ -1,10 +1,14 @@
 { config, pkgs, lib, self, ... }:
 
-# Break-glass recovery stick for foreign-agent. Booting it (the EEPROM prefers
-# USB over SD) unconditionally reflashes the SD card with the foreign-agent
-# image built into this closure, drops foreign-agent's SSH host key (also its
-# agenix identity) onto the fresh root, and powers off. Igor and Tanya then pull
-# the stick and power the box back on. See foreign-agent.md.
+# Break-glass recovery stick for foreign-agent. This is its own
+# nixosConfiguration (foreign-agent-recovery), NOT a module of foreign-agent:
+# never import it there.
+#
+# Booting it (the EEPROM prefers USB over SD) unconditionally reflashes the SD
+# card with the foreign-agent image built into this closure, drops
+# foreign-agent's SSH host key (also its agenix identity) onto the fresh root,
+# and powers off. Igor and Tanya then pull the stick and power the box back on.
+# See foreign-agent.md.
 #
 # The host key is not in the nix store: scripts/make-foreign-agent-recovery.sh
 # copies it to /recovery on the stick after writing the image.
@@ -28,8 +32,8 @@ let
 in
 {
   imports = [
-    ../../modules/core-common
-    ../../modules/rpi-slim.nix
+    ../../../modules/core-common
+    ../../../modules/rpi-slim.nix
   ];
 
   networking.hostName = "foreign-agent-recovery";

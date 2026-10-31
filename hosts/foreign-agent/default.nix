@@ -4,7 +4,8 @@
 # their network. Reachable only over the VPN (it dials out to vps) - see
 # foreign-agent.md. Filesystems come from nixos-raspberrypi's sd-image module
 # (added in flake.nix), so the same config also builds the image that the
-# recovery stick (hosts/foreign-agent-recovery) flashes back onto the SD card.
+# recovery stick (./recovery-stick, a separate system) flashes back onto the
+# SD card.
 
 {
   imports = [
@@ -13,7 +14,7 @@
     ../../modules/rpi-slim.nix
     ./network.nix
     ./wireguard.nix
-    ./recovery.nix
+    ./recovery-trigger.nix
   ];
 
   networking.hostName = "foreign-agent";

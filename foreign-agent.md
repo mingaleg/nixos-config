@@ -25,7 +25,7 @@ The stick can reset the box to a known-good config that has the VPN, Wi-Fi and S
 however badly a deploy went.
 
 - The EEPROM boot order is `0xf14`: USB first, then SD.
-- Booting the stick (`hosts/foreign-agent-recovery`) does the following:
+- Booting the stick (`hosts/foreign-agent/recovery-stick`) does the following:
   1. Reflashes `/dev/mmcblk0` with `images.foreign-agent`, which is embedded in the stick's
      closure.
   2. Copies the host key from `/recovery` on the stick onto the new root.
@@ -33,7 +33,7 @@ however badly a deploy went.
   The ACT LED blinks steadily while working. On failure it shows a heartbeat pattern and the
   box stays up; SSH is open on ethernet DHCP and console login works.
 - Plugging the stick into a *running* box (uptime over 5 min) triggers a reboot into it
-  (`hosts/foreign-agent/recovery.nix`). The uptime guard stops a coldplug reboot loop if USB
+  (`hosts/foreign-agent/recovery-trigger.nix`). The uptime guard stops a coldplug reboot loop if USB
   boot ever falls through to SD.
 - The stick restores the config **as of when the stick was written**. After a reset, redeploy
   the current config with `./deploy_remote foreign-agent`.

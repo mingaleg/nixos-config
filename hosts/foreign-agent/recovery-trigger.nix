@@ -2,7 +2,7 @@
 
 # Hot-plug half of the break-glass reset. The EEPROM boots USB before SD
 # (BOOT_ORDER=0xf14, set once by hand), so a cold boot with the recovery stick
-# in goes straight to hosts/foreign-agent-recovery. This covers the stick being
+# in goes straight to ./recovery-stick. This covers the stick being
 # plugged into a running box: reboot, and the EEPROM takes it from there.
 
 {
