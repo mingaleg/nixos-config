@@ -58,11 +58,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793474595,
-        "narHash": "sha256-0+chmjQB+cML5B1VBnCf1ThsrUItcSh4O7F52dqKtG4=",
+        "lastModified": 1793478165,
+        "narHash": "sha256-03ZowB5acq2QEamxOy6Th/u1tPjo9FLXdCuTOuyqDXI=",
         "owner": "mingaleg",
         "repo": "fleet-deployer",
-        "rev": "b2b3cf74930c727ef4b4c00aabd6177db7adcf58",
+        "rev": "e9d89efaf31cbad6991d54d5dda9e86a3397bb9f",
         "type": "github"
       },
       "original": {
