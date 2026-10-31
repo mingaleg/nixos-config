@@ -50,6 +50,7 @@ in
     git
     htop
     btop
+    speedtest-cli
     tmux
     usb-modeswitch
     jq # reading fleet-deployer's API: curl -s localhost:8090/api/hosts | jq
