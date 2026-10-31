@@ -13,6 +13,7 @@ in
     ./samba-server.nix
     ./pihole.nix
     ./wireguard-vpn.nix
+    ./fleet-deployer.nix
   ];
 
   networking.hostName = "ronove";

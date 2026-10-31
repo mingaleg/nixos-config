@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running `nixos-help`).
 
-{ config, pkgs, ... }:
+{ config, pkgs, fleet-deployer, ... }:
 
 {
   imports =
@@ -112,5 +112,10 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  # mingamini deploys itself; ronove's fleet-deployer may only read its status.
+  users.users.mingaleg.openssh.authorizedKeys.keys = [
+    ''restrict,command="${pkgs.writeShellScript "fleet-status" fleet-deployer.lib.statusScript}" ${pkgs.lib.fileContents ../../ssh-keys/fleet-deployer.pub}''
+  ];
+
   system.stateVersion = "25.11"; # Did you read the comment?
 }

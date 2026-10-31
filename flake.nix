@@ -18,6 +18,12 @@
       url = "github:nvmd/nixos-raspberrypi/main";
     };
 
+    # Builds main on ronove and deploys it to the fleet (dashboard + API).
+    fleet-deployer = {
+      url = "github:mingaleg/fleet-deployer";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";

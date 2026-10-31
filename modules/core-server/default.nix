@@ -5,6 +5,11 @@
     ../core-common
   ];
 
+  # ronove's fleet-deployer deploys as mingaleg (passwordless sudo, below).
+  users.users.mingaleg.openssh.authorizedKeys.keys = [
+    (builtins.readFile ../../ssh-keys/fleet-deployer.pub)
+  ];
+
   # Agenix configuration
   age.identityPaths = [ "/root/.ssh/agenix-hosts" ];
 

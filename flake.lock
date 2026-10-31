@@ -51,6 +51,26 @@
         "type": "github"
       }
     },
+    "fleet-deployer": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793473719,
+        "narHash": "sha256-CrRalNBQQlK+XR0oLGvrseOOwfviOXcOeP6X6FeAKek=",
+        "owner": "mingaleg",
+        "repo": "fleet-deployer",
+        "rev": "b74796ad1312f0779670c87f79effbbffef971c7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mingaleg",
+        "repo": "fleet-deployer",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -189,6 +209,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "fleet-deployer": "fleet-deployer",
         "home-manager": "home-manager",
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixos-raspberrypi": "nixos-raspberrypi",

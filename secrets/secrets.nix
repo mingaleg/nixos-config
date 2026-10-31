@@ -23,6 +23,10 @@ wireguardSecrets // {
   # HTTP basic-auth password for the ttyd web terminal on vps
   "ttyd-password.age".publicKeys = [ mingaleg allHosts ];
 
+  # ronove's fleet-deployer: SSH key it deploys with, and its API bearer token
+  "fleet-deployer-ssh.age".publicKeys = [ mingaleg allHosts ];
+  "fleet-deployer-token.age".publicKeys = [ mingaleg allHosts ];
+
   # foreign-agent: WireGuard key and Wi-Fi PSKs (SOLND082_PSK, MINGAHOME_PSK)
   "wireguard-foreign-agent-private.age".publicKeys = [ mingaleg foreignAgent ];
   "foreign-agent-wifi.age".publicKeys = [ mingaleg foreignAgent ];

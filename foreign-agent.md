@@ -37,6 +37,9 @@ however badly a deploy went.
   boot ever falls through to SD.
 - The stick restores the config **as of when the stick was written**. After a reset, redeploy
   the current config with `./deploy_remote foreign-agent`.
+- Normally deployed from ronove's fleet-deployer dashboard (see fleet-deployer.md). Its key
+  reaches foreign-agent with the first deploy after it's back online, done with
+  `./deploy_remote --test foreign-agent` from mingamini.
 - For changes that could cut off access (networking, WireGuard, SSH, firewall), deploy with
   `./deploy_remote --test foreign-agent` first. That activates the change without making it the
   boot default, so if it breaks access, a power cycle by Igor or Tanya brings back the previous
