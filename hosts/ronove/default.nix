@@ -51,6 +51,7 @@ in
     htop
     tmux
     usb-modeswitch
+    jq # reading fleet-deployer's API: curl -s localhost:8090/api/hosts | jq
   ];
 
   # HiLink cellular modem (Huawei E353/E3131) enumerates as a mass-storage
