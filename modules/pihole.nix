@@ -183,7 +183,7 @@ in
     systemd.services.pihole-ftl-setup.serviceConfig.ExecStopPost =
       pkgs.writeShellScript "pihole-ftl-reload-gravity" ''
         pid=$(${pkgs.systemd}/bin/systemctl show --property MainPID --value pihole-ftl.service)
-        [ "${pid:-0}" -gt 0 ] && ${pkgs.procps}/bin/kill -s SIGRTMIN "$pid"
+        [ "''${pid:-0}" -gt 0 ] && ${pkgs.procps}/bin/kill -s SIGRTMIN "$pid"
         exit 0
       '';
 
