@@ -30,6 +30,13 @@ in
     sshUser = "mingaleg";
     sshKeyFile = config.age.secrets.fleet-deployer-ssh.path;
     tokenFile = config.age.secrets.fleet-deployer-token.path;
+    # Anyone at home or on the VPN may deploy from the dashboard; the token is
+    # for API use from anywhere else.
+    trustedNetworks = [
+      "${layout.network.prefix}.0/${toString layout.network.prefixLength}"
+      "10.100.0.0/24" # WireGuard VPN clients (via vps)
+      "127.0.0.0/8"
+    ];
     hosts = {
       ronove.target = "localhost";
       vps.target = "home-gw.mingalev.net";

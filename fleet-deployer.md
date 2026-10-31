@@ -8,7 +8,8 @@ ronove is the fleet's build and release hub. It runs
 - It deploys only when asked. It never deploys on its own.
 
 - **Dashboard:** http://ronove.home.mingalev.net:8090, readable from the LAN and the VPN.
-- **Actions** (deploy, refresh) need the API token. The plaintext is in
+- **Actions** (deploy, refresh) need no token from the home LAN or the WireGuard VPN
+  (`trustedNetworks`). From anywhere else they need the API token. The plaintext is in
   `/mnt/pegasus/secrets/fleet-deployer/api-token`; it's stored as
   `secrets/fleet-deployer-token.age`. It's long-lived and never needs rotating.
 - **API** (see the repo's README), e.g.:
