@@ -2,5 +2,5 @@
 
 set -e
 
-nixos-rebuild switch --flake .#`hostname`
-
+# --sudo: build as you, activate as root (the system profile is root-owned).
+nixos-rebuild switch --flake .#`hostname` --sudo
