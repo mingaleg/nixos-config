@@ -27,7 +27,7 @@ Hosts
 | ronove | yes, to itself via `localhost` | `fleet-deployer.pub` authorized for `mingaleg` (core-server) |
 | vps | yes, via `home-gw.mingalev.net` | same |
 | foreign-agent | yes, over the VPN | same. It only arrives with foreign-agent's next deploy, so until then the dashboard shows it unreachable. |
-| mingamini | no, it deploys itself | same key, but restricted to the status script (`hosts/mingamini`) |
+| mingamini | yes, as `root` | the key is authorized for root, and only from ronove's addresses (`from="172.26.249.253,10.200.0.2"`); mingaleg keeps its sudo password (`hosts/mingamini`) |
 
 - **Building foreign-agent:** ronove builds it under aarch64 emulation (`boot.binfmt`).
 - **Host keys:** checked strictly against `programs.ssh.knownHosts` in the module file.

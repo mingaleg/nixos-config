@@ -41,10 +41,10 @@ in
       ronove.target = "localhost";
       vps.target = "home-gw.mingalev.net";
       foreign-agent.target = "foreign-agent.${layout.domain}";
-      # Self-served; its key there only runs the status script.
+      # Deployed as root: its key there only accepts ronove's addresses.
       mingamini = {
         target = "mingamini.${layout.domain}";
-        deploy = false;
+        user = "root";
       };
     };
   };
