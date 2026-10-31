@@ -174,6 +174,19 @@ in
     systemd.services.pihole-ftl-setup.script =
       lib.mkIf needsSetupPatch (lib.mkForce patchedSetupScript);
 
+    # pihole-ftl is Type=simple, so this unit starts while FTL is still starting
+    # up. Its closing `pihole -g` then rebuilds gravity.db (holding the lock)
+    # just as FTL first opens it: FTL logs "database is locked", gives up, and
+    # runs with no blocklists until its next restart - and upstream only signals
+    # FTL to reload after the *initial* gravity build, not this one. So always
+    # make FTL reopen gravity once setup is over, whether it succeeded or not.
+    systemd.services.pihole-ftl-setup.serviceConfig.ExecStopPost =
+      pkgs.writeShellScript "pihole-ftl-reload-gravity" ''
+        pid=$(${pkgs.systemd}/bin/systemctl show --property MainPID --value pihole-ftl.service)
+        [ "${pid:-0}" -gt 0 ] && ${pkgs.procps}/bin/kill -s SIGRTMIN "$pid"
+        exit 0
+      '';
+
     assertions = [
       {
         assertion = !needsSetupPatch || patchedSetupScript != upstreamSetupScript;
