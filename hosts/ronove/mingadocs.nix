@@ -27,15 +27,18 @@ in
   users.users.nginx.extraGroups = [ "mingadocs" ];
   users.users.mingaleg.extraGroups = [ "mingadocs" ];
 
-  # Label printing. Local-only CUPS with one driverless (IPP Everywhere /
-  # AirPrint) queue; the name is what mingadocs' print settings refer to.
+  # Label printing. Local-only CUPS with one driverless queue; the name is what
+  # mingadocs' print settings refer to. The printer takes PWG raster (it's
+  # AirPrint), so cups-filters' generic PPD drives it. Not model "everywhere":
+  # that builds the PPD by querying the printer, so every deploy while it's
+  # off or asleep would fail ensure-printers.
   services.printing.enable = true;
   hardware.printers.ensurePrinters = [
     {
       name = "OfficePrinter";
       description = "HP LaserJet MFP M232";
       deviceUri = "ipp://${printer}/ipp/print";
-      model = "everywhere";
+      model = "drv:///cupsfilters.drv/pwgrast.ppd";
       ppdOptions.PageSize = "A4";
     }
   ];
