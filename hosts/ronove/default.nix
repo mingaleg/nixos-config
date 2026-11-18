@@ -10,6 +10,7 @@ in
     ../../modules/hosts-file.nix
     ../../modules/network-tuning.nix
     ./nginx-www.nix
+    ./web-proxy.nix
     ./samba-server.nix
     ./pihole.nix
     ./wireguard-vpn.nix

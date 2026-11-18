@@ -1,7 +1,8 @@
 { config, lib, fleet-deployer, ... }:
 
 # ronove as the fleet's build & release hub: tracks main of this repo, shows
-# every host's state on a dashboard (http://ronove.home.mingalev.net:8090) and
+# every host's state on a dashboard (http://fleet-deployer.ronove via nginx in
+# web-proxy.nix, or directly at http://ronove.home.mingalev.net:8090) and
 # deploys on request (button or API). It never deploys on its own.
 
 let

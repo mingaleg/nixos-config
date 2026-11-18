@@ -65,6 +65,35 @@ let
   needsSetupPatch =
     builtins.pathExists setupScriptModule
     && !(lib.hasInfix "already present" upstreamSetupScript);
+
+  # Where FTL's webserver listens when a reverse proxy owns port 80.
+  webBackend = "127.0.0.1:8081";
+
+  # The address a machine's bare name means: its `primary` interface, or its
+  # only one. Mirrors the choice modules/hosts-file.nix makes for /etc/hosts.
+  primaryIfaces = m:
+    let
+      ifaces = lib.attrValues (m.interfaces or { });
+      marked = lib.filter (i: i.primary or false) ifaces;
+    in
+    if marked != [ ] then marked else ifaces;
+
+  # "*.<name>" and "*.<name>.<domain>" -> the machine, so services on it can
+  # have their own names (fleet-deployer.ronove). Clients' search domains don't
+  # help here: systemd-resolved only appends them to single-label names, so
+  # "<name>" has to be a zone Pi-hole answers itself.
+  # Invalid names are skipped here and reported by the assertion below.
+  wildcardIpOf = name:
+    let ifaces = primaryIfaces (layout.machines.${name} or { }); in
+    if lib.length ifaces == 1 then (lib.head ifaces).ip else null;
+
+  wildcardLines = lib.concatMap (name:
+    let ip = wildcardIpOf name; in lib.optionals (ip != null) [
+      "local=/${name}/"
+      "address=/${name}/${ip}"
+      "address=/${name}.${layout.domain}/${ip}"
+    ]
+  ) config.pihole.wildcardMachines;
 in
 {
   options.pihole = {
@@ -81,12 +110,38 @@ in
         on the LAN should have this enabled at a time.
       '';
     };
+
+    wildcardMachines = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      example = [ "ronove" ];
+      description = ''
+        Machines from home-network/layout.nix whose every subdomain resolves to
+        them, e.g. fleet-deployer.ronove and fleet-deployer.ronove.<domain>.
+      '';
+    };
+
+    webProxied = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Serve the web interface on loopback only (`pihole.webBackend`) for a
+        reverse proxy to expose, instead of on port 80 directly.
+      '';
+    };
+
+    webBackend = lib.mkOption {
+      type = lib.types.str;
+      readOnly = true;
+      default = webBackend;
+      description = "host:port of the web interface when `webProxied` is set.";
+    };
   };
 
   config = {
     services.pihole-web = {
       enable = true;
-      ports = [80];
+      ports = if config.pihole.webProxied then [ webBackend ] else [ 80 ];
     };
 
     services.pihole-ftl = {
@@ -95,7 +150,9 @@ in
       # Open firewall ports
       openFirewallDNS = true;                      # Port 53 for DNS
       openFirewallDHCP = config.pihole.dhcpActive;  # Ports 67/68 for DHCP
-      openFirewallWebserver = true;                 # Port 80 for web interface
+      # Port 80 for web interface. When proxied the port is loopback-only (and
+      # upstream's port parser can't read an "addr:port" anyway).
+      openFirewallWebserver = !config.pihole.webProxied;
 
       settings = {
         dns = {
@@ -112,10 +169,14 @@ in
           localise = false;
           hosts = dnsHosts;
         };
+        # The port comes from services.pihole-web.ports above.
         webserver = {
-          port = "80";
           api = {
             pwhash = "$BALLOON-SHA256$v=1$s=1024,t=32$aEOQdLB2YJE+JonvYAkS8w==$1Rrlzx4qKDP8c+G+3FAHbMc7BKym5ZK+1h9SFOYSsKI=";
+            # Behind a reverse proxy every request arrives from 127.0.0.1, so
+            # "local clients skip the login" would mean everyone does. This is
+            # FTL's default; pinned so it can't silently flip.
+            localAPIauth = true;
           };
           session = {
             timeout = 43200; # 12h
@@ -145,7 +206,7 @@ in
               { destination = "10.100.0.0/24"; gateway = ronove; }
               { destination = "${modem}/32"; gateway = ronove; }
             ])
-          ];
+          ] ++ wildcardLines;
         };
         dhcp = {
           active = config.pihole.dhcpActive;
@@ -214,7 +275,13 @@ in
       su = "pihole pihole";
     };
 
-    assertions = [
+    assertions = (map (name: {
+      assertion = wildcardIpOf name != null;
+      message =
+        "pihole.wildcardMachines: ${name} must be a machine in"
+        + " home-network/layout.nix with one interface, or one marked"
+        + " `primary = true`.";
+    }) config.pihole.wildcardMachines) ++ [
       {
         assertion = !needsSetupPatch || patchedSetupScript != upstreamSetupScript;
         message = ''
