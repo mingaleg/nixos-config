@@ -1,4 +1,4 @@
-{ config, lib, mingadocs, ... }:
+{ config, lib, pkgs, mingadocs, ... }:
 
 # mingadocs (github:mingaleg/mingadocs): scans paper documents on the office
 # printer's scanner, files them as PDFs, and prints their ARN labels. Served as
@@ -8,6 +8,17 @@
 let
   layout = import ../../home-network/layout.nix;
   printer = layout.machines.officeprinter.interfaces.wlan.ip;
+  scannerUrl = "https://officeprinter.${layout.domain}:443";
+
+  # SANE's config with the scanner declared in escl.conf, so `scanimage -L`
+  # (mingadocs' device list) shows it without mDNS discovery - there's no
+  # Avahi on ronove. No model name after the URL: with a host name instead of
+  # an IP, sane-backends 1.4.0 then fails to list the device at all.
+  saneConfig = pkgs.runCommand "mingadocs-sane-config" { } ''
+    cp -r ${pkgs.sane-backends}/etc/sane.d $out
+    chmod -R u+w $out
+    echo "device ${scannerUrl}" >> $out/escl.conf
+  '';
 in
 {
   imports = [ mingadocs.nixosModules.default ];
@@ -43,7 +54,8 @@ in
     }
   ];
 
-  # Scanning goes through SANE's built-in eSCL backend straight to the
-  # printer's address, so no discovery or extra backends are needed.
+  # Scanning goes through SANE's built-in eSCL backend; the device mingadocs
+  # has stored is escl:${scannerUrl}.
   hardware.sane.enable = true;
+  systemd.services.mingadocs.environment.SANE_CONFIG_DIR = "${saneConfig}";
 }
