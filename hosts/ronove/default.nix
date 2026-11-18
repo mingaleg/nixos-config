@@ -15,6 +15,7 @@ in
     ./pihole.nix
     ./wireguard-vpn.nix
     ./fleet-deployer.nix
+    ./mingadocs.nix
   ];
 
   networking.hostName = "ronove";

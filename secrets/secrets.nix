@@ -27,6 +27,9 @@ wireguardSecrets // {
   "fleet-deployer-ssh.age".publicKeys = [ mingaleg allHosts ];
   "fleet-deployer-token.age".publicKeys = [ mingaleg allHosts ];
 
+  # ronove's mingadocs: Django SECRET_KEY
+  "mingadocs-secret-key.age".publicKeys = [ mingaleg allHosts ];
+
   # foreign-agent: WireGuard key and Wi-Fi PSKs (SOLND082_PSK, MINGAHOME_PSK)
   "wireguard-foreign-agent-private.age".publicKeys = [ mingaleg foreignAgent ];
   "foreign-agent-wifi.age".publicKeys = [ mingaleg foreignAgent ];

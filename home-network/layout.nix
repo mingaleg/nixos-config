@@ -87,6 +87,16 @@ let
       };
     };
 
+    # HP LaserJet MFP M232: mingadocs' scanner and label printer. Pinned to
+    # the address it had from the dynamic pool, because mingadocs stores its
+    # SANE device as escl:https://172.26.249.239:443.
+    officeprinter = {
+      interfaces.wlan = {
+        ip = ip 239;
+        mac = "3c:0a:f3:39:9b:0e";
+      };
+    };
+
     keenetic = {
       interfaces.eth = {
         ip = ip 252;
