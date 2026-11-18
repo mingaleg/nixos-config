@@ -187,6 +187,33 @@ in
         exit 0
       '';
 
+    # The gravity run downloads blocklists over HTTPS, which fails while the
+    # clock is still wrong after boot (ronove's RTC battery is dead), leaving
+    # gravity on the stale cached copy until the next restart. Only the setup
+    # waits - pihole-ftl itself must not, since chrony resolves its NTP
+    # servers through it.
+    systemd.services.pihole-ftl-setup = {
+      wants = [ "time-sync.target" ];
+      after = [ "time-sync.target" ];
+    };
+
+    # Upstream only rotates FTL.log; the dnsmasq query log (pihole.log) grows
+    # forever - it had reached 4.6 GB on ronove. FTL keeps it open, hence
+    # copytruncate. Queries are kept in pihole-FTL.db anyway, so a week of the
+    # text log is plenty.
+    services.logrotate.settings.pihole-ftl-dnsmasq = {
+      files = [
+        "${config.services.pihole-ftl.logDirectory}/pihole.log"
+        "${config.services.pihole-ftl.logDirectory}/webserver.log"
+      ];
+      frequency = "daily";
+      rotate = 7;
+      compress = true;
+      delaycompress = true;
+      copytruncate = true;
+      su = "pihole pihole";
+    };
+
     assertions = [
       {
         assertion = !needsSetupPatch || patchedSetupScript != upstreamSetupScript;

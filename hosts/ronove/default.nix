@@ -92,18 +92,46 @@ in
   };
 
   # NTP server for the local network, moved over from pi.
+  #
+  # ronove's CMOS battery is dead: after a power cut the RTC comes back at
+  # 2019-05-20, and until chrony steps the clock everything that starts early
+  # (TLS downloads, Pi-hole's gravity run) sees 2019. So:
+  #  - `-s` starts the clock from the drift file's mtime when that is later
+  #    than the RTC, i.e. roughly when chronyd last ran, not 2019;
+  #  - `activate 0.1` keeps the local reference off until we've synced to a
+  #    real upstream at least once, so LAN clients are never handed our
+  #    unsynced clock as stratum 10;
+  #  - chrony-wait holds time-sync.target until the clock is synced, for
+  #    units that care (see pihole-ftl-setup in modules/pihole.nix).
   services.chrony = {
     enable = true;
     servers = [
       "0.nixos.pool.ntp.org"
       "1.nixos.pool.ntp.org"
     ];
+    extraFlags = [ "-s" ];
     extraConfig = ''
       allow ${layout.network.prefix}.0/24
-      local stratum 10
+      local stratum 10 activate 0.1
     '';
   };
   networking.firewall.allowedUDPPorts = [ 123 ];
+
+  # Same as upstream chrony's chrony-wait.service. Bounded, so with no internet
+  # it gives up after ~3 minutes and lets time-sync.target through anyway.
+  systemd.services.chrony-wait = {
+    description = "Wait for chrony to synchronize system clock";
+    after = [ "chronyd.service" ];
+    requires = [ "chronyd.service" ];
+    before = [ "time-sync.target" ];
+    wantedBy = [ "time-sync.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      DynamicUser = true;
+      ExecStart = "${pkgs.chrony}/bin/chronyc -h 127.0.0.1,::1 waitsync 180 0.1 0.0 1";
+    };
+  };
 
   system.stateVersion = "25.11";
 }
