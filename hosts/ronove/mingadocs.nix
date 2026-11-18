@@ -44,6 +44,9 @@ in
   # that builds the PPD by querying the printer, so every deploy while it's
   # off or asleep would fail ensure-printers.
   services.printing.enable = true;
+  # mingadocs probes (and caches for an hour) the printer list when it starts;
+  # make sure the queue exists by then.
+  systemd.services.mingadocs.after = [ "ensure-printers.service" ];
   hardware.printers.ensurePrinters = [
     {
       name = "OfficePrinter";
