@@ -1,8 +1,9 @@
 { config, lib, ... }:
 
 # nginx owns port 80 on ronove and routes by name: fleet-deployer.ronove to the
-# deployer, docs.ronove to mingadocs, anything else (ronove, pi.hole, the bare
-# IP) to the Pi-hole web interface, which pihole.webProxied moves to loopback.
+# deployer, docs.ronove to mingadocs, tg-replay.ronove to tg-replay, anything
+# else (ronove, pi.hole, the bare IP) to the Pi-hole web interface, which
+# pihole.webProxied moves to loopback.
 # pegasus.ronove lives with the rest of the file share in nginx-www.nix.
 
 let
@@ -53,6 +54,20 @@ in
       # With DEBUG off the app serves neither of these itself.
       locations."/static/".alias = "${config.services.mingadocs.staticDir}/";
       locations."/media/".alias = "${config.services.mingadocs.mediaDir}/";
+    };
+
+    virtualHosts."tg-replay.ronove" = {
+      serverAliases = [ "tg-replay.ronove.${layout.domain}" ];
+      # Has its own login, but holds a full Telegram login: no further than
+      # the LAN and VPN.
+      extraConfig = lanAndVpnOnly;
+      locations."/" = {
+        proxyPass = "http://${config.services.tg-replay.listen.address}:${toString config.services.tg-replay.listen.port}";
+        # Pulls and their progress can run long.
+        extraConfig = proxyHeaders + ''
+          proxy_read_timeout 300s;
+        '';
+      };
     };
 
     virtualHosts."pihole" = {

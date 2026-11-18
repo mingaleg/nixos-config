@@ -16,6 +16,7 @@ in
     ./wireguard-vpn.nix
     ./fleet-deployer.nix
     ./mingadocs.nix
+    ./tg-replay.nix
   ];
 
   networking.hostName = "ronove";
